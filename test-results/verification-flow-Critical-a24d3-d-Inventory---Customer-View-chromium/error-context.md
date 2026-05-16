@@ -1,0 +1,314 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - generic [ref=e6]: Commercial Supply & Logistics
+          - link "Property Managers" [ref=e7] [cursor=pointer]:
+            - /url: /wholesale?tab=property
+          - link "Dealers" [ref=e8] [cursor=pointer]:
+            - /url: /wholesale?tab=dealer
+          - link "Forms Hub" [ref=e9] [cursor=pointer]:
+            - /url: /forms
+            - img [ref=e10]
+            - text: Forms Hub
+        - generic [ref=e13]:
+          - link "Corporate Login" [ref=e14] [cursor=pointer]:
+            - /url: /wholesale
+            - img [ref=e15]
+            - text: Corporate Login
+          - link "Employee Portal" [ref=e18] [cursor=pointer]:
+            - /url: /employee
+            - img [ref=e19]
+            - text: Employee Portal
+      - generic [ref=e22]:
+        - link "Road Runner Appliance Road Runner Appliance Hemingway, SC" [ref=e23] [cursor=pointer]:
+          - /url: /
+          - img "Road Runner Appliance" [ref=e24]
+          - generic [ref=e25]:
+            - heading "Road Runner Appliance" [level=1] [ref=e26]
+            - paragraph [ref=e27]: Hemingway, SC
+        - navigation [ref=e28]:
+          - link "Retail Sales" [ref=e29] [cursor=pointer]:
+            - /url: /shop
+          - button "Leasing" [ref=e30]: Leasing
+          - link "Service & Repair" [ref=e32] [cursor=pointer]:
+            - /url: /service
+        - generic [ref=e33]:
+          - link "Troubleshoot" [ref=e34] [cursor=pointer]:
+            - /url: /tools/fix
+          - button "0" [ref=e35]:
+            - img [ref=e36]
+            - generic [ref=e40]: "0"
+    - main [ref=e41]:
+      - generic [ref=e42]:
+        - complementary [ref=e43]:
+          - link "FLOODEngine" [ref=e45] [cursor=pointer]:
+            - /url: /employee/inventory
+            - img [ref=e47]
+            - generic [ref=e49]: FLOODEngine
+          - navigation [ref=e51]:
+            - link "Dashboard" [ref=e52] [cursor=pointer]:
+              - /url: /employee/inventory
+              - img [ref=e53]
+              - text: Dashboard
+            - link "Inventory" [ref=e58] [cursor=pointer]:
+              - /url: /employee/inventory/inventory
+              - img [ref=e59]
+              - text: Inventory
+            - link "AI Gen" [ref=e63] [cursor=pointer]:
+              - /url: /employee/inventory/generator
+              - img [ref=e64]
+              - text: AI Gen
+            - link "Sidecar" [ref=e66] [cursor=pointer]:
+              - /url: /employee/inventory/sidecar
+              - img [ref=e67]
+              - text: Sidecar
+          - link "Open Public Site" [ref=e71] [cursor=pointer]:
+            - /url: /
+            - img [ref=e72]
+            - text: Open Public Site
+        - generic [ref=e75]:
+          - generic [ref=e76]:
+            - generic [ref=e78]:
+              - img [ref=e79]
+              - searchbox "Global Search..." [ref=e82]
+            - generic [ref=e83]:
+              - button "Sync DB" [ref=e84]:
+                - img [ref=e85]
+                - generic [ref=e90]: Sync DB
+              - button "Master Reset Sync" [ref=e91]:
+                - img [ref=e92]
+              - button "Connect" [ref=e96]
+              - button "Add Unit" [active] [ref=e97]:
+                - img [ref=e98]
+                - generic [ref=e99]: Add Unit
+          - main [ref=e100]:
+            - generic [ref=e101]:
+              - generic [ref=e102]:
+                - generic [ref=e103]:
+                  - generic [ref=e104]:
+                    - text: Total Units
+                    - generic [ref=e105]: "20"
+                  - img [ref=e107]
+                - generic [ref=e117]:
+                  - generic [ref=e118]:
+                    - text: Available
+                    - generic [ref=e119]: "20"
+                  - img [ref=e121]
+                - generic [ref=e124]:
+                  - generic [ref=e125]:
+                    - text: Listed
+                    - generic [ref=e126]: "0"
+                  - img [ref=e128]
+                - generic [ref=e131]:
+                  - generic [ref=e132]:
+                    - text: Total Value
+                    - generic [ref=e133]: $9,345
+                  - img [ref=e135]
+              - generic [ref=e137]:
+                - generic [ref=e138]:
+                  - generic [ref=e139]:
+                    - generic [ref=e140]:
+                      - heading "Rapid Listing Engine" [level=2] [ref=e141]
+                      - paragraph [ref=e142]: Add inventory in seconds using AI vision analysis or bulk generate SEO descriptions for your entire stock.
+                    - generic [ref=e143]:
+                      - button "New Unit" [ref=e144]:
+                        - img [ref=e145]
+                        - text: New Unit
+                      - button "Bulk Generator" [ref=e146]:
+                        - img [ref=e147]
+                        - text: Bulk Generator
+                  - img [ref=e150]
+                - generic [ref=e152]:
+                  - generic [ref=e153]:
+                    - img [ref=e155]
+                    - heading "Inventory Mix" [level=3] [ref=e158]
+                  - generic [ref=e161]:
+                    - img [ref=e162]:
+                      - generic [ref=e164]:
+                        - img [ref=e166]
+                        - img [ref=e168]
+                        - img [ref=e170]
+                        - img [ref=e172]
+                    - list [ref=e174]:
+                      - listitem [ref=e175]:
+                        - img [ref=e176]
+                        - text: Washers
+                      - listitem [ref=e178]:
+                        - img [ref=e179]
+                        - text: Refrigerators
+                      - listitem [ref=e181]:
+                        - img [ref=e182]
+                        - text: Dryers
+                      - listitem [ref=e184]:
+                        - img [ref=e185]
+                        - text: Washer & Dryer Sets
+              - generic [ref=e187]:
+                - generic [ref=e189]:
+                  - heading "Recent Inventory" [level=3] [ref=e190]
+                  - paragraph [ref=e191]: Your available units ready for listing
+                - table [ref=e193]:
+                  - rowgroup [ref=e194]:
+                    - row "Product Brand Model Condition Price Status" [ref=e195]:
+                      - columnheader "Product" [ref=e196]
+                      - columnheader "Brand" [ref=e197]
+                      - columnheader "Model" [ref=e198]
+                      - columnheader "Condition" [ref=e199]
+                      - columnheader "Price" [ref=e200]
+                      - columnheader "Status" [ref=e201]
+                  - rowgroup [ref=e202]:
+                    - row "Whirlpool WTW5000DW1 Washer | Good Condition | $375 Whirlpool WTW5000DW1 good $375 available" [ref=e203]:
+                      - cell "Whirlpool WTW5000DW1 Washer | Good Condition | $375" [ref=e204]:
+                        - generic [ref=e207]: Whirlpool WTW5000DW1 Washer | Good Condition | $375
+                      - cell "Whirlpool" [ref=e208]
+                      - cell "WTW5000DW1" [ref=e209]
+                      - cell "good" [ref=e210]
+                      - cell "$375" [ref=e211]
+                      - cell "available" [ref=e212]
+                    - row "Whirlpool WTW5200SQ0 Top Load Washer | Good Condition Whirlpool WTW5200SQ0 good $200 available" [ref=e213]:
+                      - cell "Whirlpool WTW5200SQ0 Top Load Washer | Good Condition" [ref=e214]:
+                        - generic [ref=e217]: Whirlpool WTW5200SQ0 Top Load Washer | Good Condition
+                      - cell "Whirlpool" [ref=e218]
+                      - cell "WTW5200SQ0" [ref=e219]
+                      - cell "good" [ref=e220]
+                      - cell "$200" [ref=e221]
+                      - cell "available" [ref=e222]
+                    - row "Samsung WA45H7000AW/A2 Top Load Washer | $450 Samsung WA45H7000AW/A2 good $450 available" [ref=e223]:
+                      - cell "Samsung WA45H7000AW/A2 Top Load Washer | $450" [ref=e224]:
+                        - generic [ref=e227]: Samsung WA45H7000AW/A2 Top Load Washer | $450
+                      - cell "Samsung" [ref=e228]
+                      - cell "WA45H7000AW/A2" [ref=e229]
+                      - cell "good" [ref=e230]
+                      - cell "$450" [ref=e231]
+                      - cell "available" [ref=e232]
+                    - row "GE GTW485ASJ4WS Top Load Washer | Good Condition GE GTW485ASJ4WS good $475 available" [ref=e233]:
+                      - cell "GE GTW485ASJ4WS Top Load Washer | Good Condition" [ref=e234]:
+                        - generic [ref=e237]: GE GTW485ASJ4WS Top Load Washer | Good Condition
+                      - cell "GE" [ref=e238]
+                      - cell "GTW485ASJ4WS" [ref=e239]
+                      - cell "good" [ref=e240]
+                      - cell "$475" [ref=e241]
+                      - cell "available" [ref=e242]
+                    - row "Used GE GTW500ASN0WS | Roadrunner Appliance GE GTW500ASN0WS good $375 available" [ref=e243]:
+                      - cell "Used GE GTW500ASN0WS | Roadrunner Appliance" [ref=e244]:
+                        - generic [ref=e247]: Used GE GTW500ASN0WS | Roadrunner Appliance
+                      - cell "GE" [ref=e248]
+                      - cell "GTW500ASN0WS" [ref=e249]
+                      - cell "good" [ref=e250]
+                      - cell "$375" [ref=e251]
+                      - cell "available" [ref=e252]
+                    - row "Used GE GTD42EASJ2WW | Roadrunner Appliance GE GTD42EASJ2WW good $400 available" [ref=e253]:
+                      - cell "Used GE GTD42EASJ2WW | Roadrunner Appliance" [ref=e254]:
+                        - generic [ref=e257]: Used GE GTD42EASJ2WW | Roadrunner Appliance
+                      - cell "GE" [ref=e258]
+                      - cell "GTD42EASJ2WW" [ref=e259]
+                      - cell "good" [ref=e260]
+                      - cell "$400" [ref=e261]
+                      - cell "available" [ref=e262]
+                    - row "Used GE DPSR610EG8WT | Roadrunner Appliance GE DPSR610EG8WT good $425 available" [ref=e263]:
+                      - cell "Used GE DPSR610EG8WT | Roadrunner Appliance" [ref=e264]:
+                        - generic [ref=e267]: Used GE DPSR610EG8WT | Roadrunner Appliance
+                      - cell "GE" [ref=e268]
+                      - cell "DPSR610EG8WT" [ref=e269]
+                      - cell "good" [ref=e270]
+                      - cell "$425" [ref=e271]
+                      - cell "available" [ref=e272]
+                    - row "Used GE WBVH5200J1WW | Roadrunner Appliance GE WBVH5200J1WW good $475 available" [ref=e273]:
+                      - cell "Used GE WBVH5200J1WW | Roadrunner Appliance" [ref=e274]:
+                        - generic [ref=e277]: Used GE WBVH5200J1WW | Roadrunner Appliance
+                      - cell "GE" [ref=e278]
+                      - cell "WBVH5200J1WW" [ref=e279]
+                      - cell "good" [ref=e280]
+                      - cell "$475" [ref=e281]
+                      - cell "available" [ref=e282]
+                    - row "Used GE GFE28GELEDS | Roadrunner Appliance GE GFE28GELEDS good $695 available" [ref=e283]:
+                      - cell "Used GE GFE28GELEDS | Roadrunner Appliance" [ref=e284]:
+                        - generic [ref=e287]: Used GE GFE28GELEDS | Roadrunner Appliance
+                      - cell "GE" [ref=e288]
+                      - cell "GFE28GELEDS" [ref=e289]
+                      - cell "good" [ref=e290]
+                      - cell "$695" [ref=e291]
+                      - cell "available" [ref=e292]
+                    - row "Used Frigidaire LFHT1831QE0 | Roadrunner Appliance Frigidaire LFHT1831QE0 good $550 available" [ref=e293]:
+                      - cell "Used Frigidaire LFHT1831QE0 | Roadrunner Appliance" [ref=e294]:
+                        - generic [ref=e297]: Used Frigidaire LFHT1831QE0 | Roadrunner Appliance
+                      - cell "Frigidaire" [ref=e298]
+                      - cell "LFHT1831QE0" [ref=e299]
+                      - cell "good" [ref=e300]
+                      - cell "$550" [ref=e301]
+                      - cell "available" [ref=e302]
+    - contentinfo [ref=e303]:
+      - generic [ref=e304]:
+        - generic [ref=e305]:
+          - generic [ref=e306]:
+            - generic [ref=e307]:
+              - img "Road Runner Appliance Logo" [ref=e308]
+              - generic [ref=e309]:
+                - heading "Road Runner Appliance" [level=3] [ref=e310]
+                - paragraph [ref=e311]: Sales & Service - All Makes & Models
+            - paragraph [ref=e312]: Your trusted source for quality used appliances and expert repair services in Hemingway, South Carolina.
+            - generic [ref=e313]:
+              - link "Facebook" [ref=e314] [cursor=pointer]:
+                - /url: https://www.facebook.com/profile.php?id=61588160902893&sk
+                - img [ref=e315]
+              - link "Nextdoor" [ref=e317] [cursor=pointer]:
+                - /url: https://nextdoor.com
+                - img [ref=e318]
+          - generic [ref=e320]:
+            - heading "Quick Links" [level=4] [ref=e321]
+            - navigation [ref=e322]:
+              - link "Services" [ref=e323] [cursor=pointer]:
+                - /url: /#services
+              - link "About Us" [ref=e324] [cursor=pointer]:
+                - /url: /#about
+              - link "Reviews" [ref=e325] [cursor=pointer]:
+                - /url: /#reviews
+              - link "Contact" [ref=e326] [cursor=pointer]:
+                - /url: /#contact
+              - link "Employee Portal" [ref=e327] [cursor=pointer]:
+                - /url: /employee
+                - img [ref=e328]
+                - text: Employee Portal
+          - generic [ref=e331]:
+            - generic [ref=e332]:
+              - heading "Didn't find the perfect match?" [level=4] [ref=e333]
+              - paragraph [ref=e334]: We get new arrivals daily. Give our team a call and we'll help you find exactly what you're looking for.
+            - heading "Contact Us" [level=4] [ref=e335]
+            - generic [ref=e336]:
+              - link "843-536-6005" [ref=e337] [cursor=pointer]:
+                - /url: tel:843-536-6005
+                - img [ref=e338]
+                - text: 843-536-6005
+              - link "123 W. Broad St. Hemingway, SC 29554" [ref=e340] [cursor=pointer]:
+                - /url: https://maps.google.com/?q=123+W.+Broad+St.+Hemingway,+SC+29554
+                - img [ref=e341]
+                - text: 123 W. Broad St. Hemingway, SC 29554
+              - link "roadrunnerappliance@yahoo.com" [ref=e344] [cursor=pointer]:
+                - /url: mailto:brad.vargason@gmail.com
+                - img [ref=e345]
+                - text: roadrunnerappliance@yahoo.com
+        - generic [ref=e348]:
+          - paragraph [ref=e349]: Road Runner Inc Appliance. All rights reserved.
+          - generic [ref=e350]:
+            - link "Facebook" [ref=e351] [cursor=pointer]:
+              - /url: https://www.facebook.com/profile.php?id=61588160902893&sk
+            - link "Nextdoor" [ref=e352] [cursor=pointer]:
+              - /url: https://nextdoor.com
+  - region "Notifications alt+T"
+  - generic [ref=e357] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e358]:
+      - img [ref=e359]
+    - generic [ref=e362]:
+      - button "Open issues overlay" [ref=e363]:
+        - generic [ref=e364]:
+          - generic [ref=e365]: "0"
+          - generic [ref=e366]: "1"
+        - generic [ref=e367]: Issue
+      - button "Collapse issues badge" [ref=e368]:
+        - img [ref=e369]
+  - alert [ref=e371]
+```

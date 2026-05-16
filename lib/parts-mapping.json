@@ -1,0 +1,58 @@
+{
+    "washer": {
+        "leak": {
+            "labor": 1.5,
+            "parts": 65.00,
+            "description": "Drain pump or door gasket replacement"
+        },
+        "noise": {
+            "labor": 2.0,
+            "parts": 120.00,
+            "description": "Bearing or tub support kit"
+        },
+        "no_spin": {
+            "labor": 1.2,
+            "parts": 85.00,
+            "description": "Drive belt or motor coupling"
+        },
+        "code": {
+            "labor": 0.8,
+            "parts": 145.00,
+            "description": "Control board or pressure switch"
+        }
+    },
+    "dryer": {
+        "no_heat": {
+            "labor": 1.0,
+            "parts": 75.00,
+            "description": "Heating element or thermal fuse"
+        },
+        "no_tumble": {
+            "labor": 1.5,
+            "parts": 55.00,
+            "description": "Drive belt and drum rollers"
+        },
+        "noise": {
+            "labor": 1.5,
+            "parts": 45.00,
+            "description": "Drum glides and idler pulley"
+        }
+    },
+    "fridge": {
+        "no_cool": {
+            "labor": 2.0,
+            "parts": 220.00,
+            "description": "Evaporator fan or thermostat"
+        },
+        "leak": {
+            "labor": 1.0,
+            "parts": 35.00,
+            "description": "Drain line clearing or water valve"
+        },
+        "noise": {
+            "labor": 1.2,
+            "parts": 110.00,
+            "description": "Condenser fan motor"
+        }
+    }
+}
