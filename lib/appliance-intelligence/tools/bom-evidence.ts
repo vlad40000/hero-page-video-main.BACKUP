@@ -1,5 +1,16 @@
 import type { BOMProviderEvidence, BOMAssemblySection } from "./schemas";
 
+const PARTIAL_FLAGS = new Set([
+  "ai-schematic-extraction",
+  "ai-search-fallback-used",
+  "partial-diagram-fetch",
+  "no-diagrams-found",
+  "section-fetch-failures",
+  "manufacturer-empty-result",
+  "manufacturer-no-parts",
+  "ai-search-fallback-disabled",
+]);
+
 export function buildBOMProviderEvidence({
   stageResult,
   modelNumber,
@@ -13,7 +24,7 @@ export function buildBOMProviderEvidence({
 }): BOMProviderEvidence {
   const parts = stageResult?.parts || [];
   const sources = stageResult?.sources || [];
-  const flags = stageResult?.coverage?.flags || [];
+  const flags: string[] = stageResult?.coverage?.flags || [];
   const source = String(provider || stageResult?.source || "").toLowerCase();
 
   let sourceTruthKind: "manufacturer" | "third_party" | "inferred" | "unknown" = "unknown";
@@ -36,13 +47,15 @@ export function buildBOMProviderEvidence({
     sourceTruthKind = "manufacturer";
   }
 
+  const hasPartialFlag = flags.some(f => PARTIAL_FLAGS.has(f));
+
   let retrievalState: "success" | "partial" | "failed" | "pending" = "pending";
   if (parts.length === 0) {
     retrievalState = "failed";
-  } else if (stageResult?.coverage?.paginationComplete) {
-    retrievalState = "success";
-  } else {
+  } else if (hasPartialFlag || !stageResult?.coverage?.paginationComplete) {
     retrievalState = "partial";
+  } else {
+    retrievalState = "success";
   }
 
   const sectionCounts: Record<string, number> = {};
@@ -50,10 +63,10 @@ export function buildBOMProviderEvidence({
     const sName = String(part?.sectionName || part?.section || part?.rawCategory || "General Assembly").trim();
     sectionCounts[sName] = (sectionCounts[sName] || 0) + 1;
   }
-  
+
   const assemblySections: BOMAssemblySection[] = Object.entries(sectionCounts).map(([sectionName, count]) => ({
     sectionName,
-    expectedPartCount: count, 
+    expectedPartCount: count,
     observedPartCount: count
   }));
 
@@ -64,13 +77,27 @@ export function buildBOMProviderEvidence({
 
   const partNumbers = parts.map((p: any) => p.rawPartNumber || p.partNumber).filter(Boolean);
 
+  let confidence = 0;
+  if (parts.length > 0) {
+    if (sourceTruthKind === "inferred") {
+      confidence = retrievalState === "partial" ? 50 : 60;
+    } else if (sourceTruthKind === "unknown") {
+      confidence = retrievalState === "partial" ? 40 : 50;
+    } else if (retrievalState === "success") {
+      confidence = sourceTruthKind === "manufacturer" ? 90 : 80;
+    } else {
+      // partial state for manufacturer or third_party — capped at 75
+      confidence = sourceTruthKind === "manufacturer" ? 70 : 65;
+    }
+  }
+
   return {
     provider: source || stage,
     modelNumber,
     sourceUrl,
     sourceTruthKind,
     retrievalState,
-    confidence: parts.length > 0 ? (sourceTruthKind === 'inferred' ? 0.6 : 0.9) : 0,
+    confidence,
     assemblySections,
     parts: partNumbers
   };
