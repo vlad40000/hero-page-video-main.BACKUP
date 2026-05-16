@@ -35,3 +35,7 @@ build_err_*.txt
 *.log
 !README.md
 !LICENSE
+
+# Antigravity runtime state
+.agents/state/*.json
+!.agents/state/workflow_state.example.json
