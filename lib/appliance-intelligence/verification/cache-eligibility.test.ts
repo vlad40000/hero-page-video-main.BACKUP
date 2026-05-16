@@ -107,6 +107,96 @@ describe("evaluateModelCacheEligibility", () => {
     });
   });
 
+  it("blank status is rejected", () => {
+    const payload = {
+      parts: [{ id: 1 }],
+      status: "",
+      completeness: { sectionCount: 5 },
+      truthSource: "Manufacturer",
+      sourceStrategy: "direct",
+    };
+    expect(evaluateModelCacheEligibility(payload)).toEqual({
+      eligible: false,
+      reason: "blocked_status:missing",
+      severity: "blocked",
+    });
+  });
+
+  it("unknown status is rejected", () => {
+    const payload = {
+      parts: [{ id: 1 }],
+      status: "enriched",
+      completeness: { sectionCount: 5 },
+      truthSource: "Manufacturer",
+      sourceStrategy: "direct",
+    };
+    expect(evaluateModelCacheEligibility(payload)).toEqual({
+      eligible: false,
+      reason: "blocked_status:enriched",
+      severity: "blocked",
+    });
+  });
+
+  it("complete is rejected (not in whitelist)", () => {
+    const payload = {
+      parts: [{ id: 1 }],
+      status: "complete",
+      completeness: { sectionCount: 5 },
+      truthSource: "Manufacturer",
+      sourceStrategy: "direct",
+    };
+    expect(evaluateModelCacheEligibility(payload)).toEqual({
+      eligible: false,
+      reason: "blocked_status:complete",
+      severity: "blocked",
+    });
+  });
+
+  it("target_met is rejected (not in whitelist)", () => {
+    const payload = {
+      parts: [{ id: 1 }],
+      status: "target_met",
+      completeness: { sectionCount: 5 },
+      truthSource: "Manufacturer",
+      sourceStrategy: "direct",
+    };
+    expect(evaluateModelCacheEligibility(payload)).toEqual({
+      eligible: false,
+      reason: "blocked_status:target_met",
+      severity: "blocked",
+    });
+  });
+
+  it("partial is rejected (not in whitelist)", () => {
+    const payload = {
+      parts: [{ id: 1 }],
+      status: "partial",
+      completeness: { sectionCount: 5 },
+      truthSource: "Manufacturer",
+      sourceStrategy: "direct",
+    };
+    expect(evaluateModelCacheEligibility(payload)).toEqual({
+      eligible: false,
+      reason: "blocked_status:partial",
+      severity: "blocked",
+    });
+  });
+
+  it("below_floor is rejected (not in whitelist)", () => {
+    const payload = {
+      parts: [{ id: 1 }],
+      status: "below_floor",
+      completeness: { sectionCount: 5 },
+      truthSource: "Manufacturer",
+      sourceStrategy: "direct",
+    };
+    expect(evaluateModelCacheEligibility(payload)).toEqual({
+      eligible: false,
+      reason: "blocked_status:below_floor",
+      severity: "blocked",
+    });
+  });
+
   it("Missing truthSource/sourceStrategy is rejected", () => {
     const payload1 = {
       parts: [{ id: 1 }],

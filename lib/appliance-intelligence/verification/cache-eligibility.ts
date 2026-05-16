@@ -15,8 +15,13 @@ export function evaluateModelCacheEligibility(payload: unknown): CacheEligibilit
     return { eligible: false, reason: "empty_parts", severity: "blocked" };
   }
 
-  if (["no_result", "failed", "summary_only"].includes(status)) {
-    return { eligible: false, reason: `blocked_status:${status}`, severity: "blocked" };
+  const ALLOWED_CACHE_STATUSES = new Set(["parts_partial", "bom_complete"]);
+  if (!ALLOWED_CACHE_STATUSES.has(status)) {
+    return {
+      eligible: false,
+      reason: `blocked_status:${status || "missing"}`,
+      severity: "blocked",
+    };
   }
 
   if (!evaluateCompleteness(payload)) {
