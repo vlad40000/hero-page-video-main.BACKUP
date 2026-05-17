@@ -1,3 +1,4 @@
+import { ArrowRight, Sparkles } from "lucide-react";
 import { HomeInventorySlider, type HomeInventorySliderItem } from "@/components/home-inventory-slider";
 import { getInventory, isFrontendVisibleInventoryStatus, type InventoryItem } from "@/lib/inventory";
 import { formatUsd } from "@/lib/money";
@@ -110,13 +111,21 @@ export async function HomeInventorySliderSection() {
   return (
     <section className="bg-[#f6f8fb] pb-10 pt-10 md:pb-16 md:pt-12">
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
-        <div className="mb-4 flex flex-col justify-between gap-3 md:mb-5 md:flex-row md:items-end">
+        <div className="mb-4 grid gap-4 md:mb-5 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-end">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-wide text-blue-700">Used appliances in stock</p>
             <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 md:text-[32px]">
               Ready for pickup or delivery
             </h2>
           </div>
+          <a
+            href="/tools/appliance-match"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-extrabold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+          >
+            <Sparkles className="h-4 w-4" />
+            Find Your Match
+            <ArrowRight className="h-4 w-4" />
+          </a>
           <a href="/shop" className="text-xs font-extrabold text-blue-700 hover:text-blue-800">
             Browse all appliances
           </a>
