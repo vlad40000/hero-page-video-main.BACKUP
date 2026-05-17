@@ -55,6 +55,60 @@ const APPLIANCE_TYPES = [
 
 const POPULAR_MODELS = ["WDT730PAHZ0", "MVWC565FW0", "RF28R7351SR"];
 const SHOP_PHONE_HREF = "tel:843-536-6005";
+
+const COMMON_SYMPTOMS = [
+  { label: "Won't drain", description: "washer won't drain water after cycle" },
+  { label: "Won't spin", description: "drum not spinning or agitating" },
+  { label: "Won't start", description: "appliance won't turn on or start" },
+  { label: "Leaking water", description: "water leaking from appliance" },
+  { label: "Not cooling", description: "refrigerator not cooling or freezing" },
+  { label: "Loud noise", description: "loud banging or grinding noise during operation" },
+  { label: "Door won't close", description: "door latch or seal not closing properly" },
+  { label: "Not heating", description: "dryer or oven not producing heat" },
+];
+
+const SYMPTOM_CAUSES: Record<string, { cause: string; searchHint: string }[]> = {
+  "washer won't drain water after cycle": [
+    { cause: "Clogged or failed drain pump", searchHint: "drain pump" },
+    { cause: "Defective lid switch preventing spin/drain", searchHint: "lid switch" },
+    { cause: "Worn or broken pump belt", searchHint: "pump belt" },
+  ],
+  "drum not spinning or agitating": [
+    { cause: "Broken drive belt", searchHint: "drive belt" },
+    { cause: "Worn motor coupling", searchHint: "motor coupling" },
+    { cause: "Faulty lid switch (top-load washers)", searchHint: "lid switch" },
+  ],
+  "appliance won't turn on or start": [
+    { cause: "Failed door latch or interlock", searchHint: "door latch" },
+    { cause: "Blown thermal fuse", searchHint: "thermal fuse" },
+    { cause: "Defective control board", searchHint: "control board" },
+  ],
+  "water leaking from appliance": [
+    { cause: "Torn or worn door boot seal", searchHint: "door boot seal gasket" },
+    { cause: "Cracked or loose hose connection", searchHint: "inlet hose drain hose" },
+    { cause: "Faulty water inlet valve", searchHint: "water inlet valve" },
+  ],
+  "refrigerator not cooling or freezing": [
+    { cause: "Dirty or failed condenser fan", searchHint: "condenser fan motor" },
+    { cause: "Defective evaporator fan motor", searchHint: "evaporator fan motor" },
+    { cause: "Failed start relay on compressor", searchHint: "start relay" },
+  ],
+  "loud banging or grinding noise during operation": [
+    { cause: "Worn drum bearing or rear bearing kit", searchHint: "drum bearing" },
+    { cause: "Loose or worn drum support rollers", searchHint: "drum roller" },
+    { cause: "Damaged drive belt slapping cabinet", searchHint: "drive belt" },
+  ],
+  "door latch or seal not closing properly": [
+    { cause: "Broken door latch or strike", searchHint: "door latch" },
+    { cause: "Worn or torn door gasket", searchHint: "door gasket" },
+    { cause: "Damaged door hinge", searchHint: "door hinge" },
+  ],
+  "dryer or oven not producing heat": [
+    { cause: "Blown thermal fuse (most common cause)", searchHint: "thermal fuse" },
+    { cause: "Failed heating element", searchHint: "heating element" },
+    { cause: "Defective high-limit thermostat", searchHint: "thermostat" },
+  ],
+};
 const PART_DESCRIPTION_STOP_WORDS = new Set([
   "a",
   "an",
@@ -296,6 +350,15 @@ export default function PartFinderClient() {
   const verifiedPartMatch = useMemo(() => {
     return verifyExtractedPartNumber(requestedPartNumber, result?.parts || []);
   }, [requestedPartNumber, result]);
+
+  const matchedSymptom = useMemo(() => {
+    return COMMON_SYMPTOMS.find((s) => s.description === requestedPartDescription) ?? null;
+  }, [requestedPartDescription]);
+
+  const symptomCauses = useMemo(() => {
+    if (!matchedSymptom) return [];
+    return SYMPTOM_CAUSES[matchedSymptom.description] ?? [];
+  }, [matchedSymptom]);
 
   async function persistRequestedPartNumber(partNumberValue = requestedPartNumber) {
     const cleanPartNumber = partNumberValue.trim().toUpperCase();
@@ -718,36 +781,31 @@ export default function PartFinderClient() {
       {currentStep === "choose-type" ? (
         <Card className="border-slate-200 shadow-sm">
           <CardHeader>
-            <CardTitle>What type of appliance?</CardTitle>
+            <CardTitle>What&apos;s wrong with your appliance?</CardTitle>
             <CardDescription>
-              Tell us your machine type and what you need — we&apos;ll target the right parts catalog from the start.
+              Pick the closest symptom to get started — or skip straight to your model number.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
-              <div className="mb-3 text-sm font-medium text-slate-700">Select appliance type <span className="text-red-500">*</span></div>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {APPLIANCE_TYPES.map((type) => {
-                  const Icon = type.icon;
+              <div className="mb-3 text-sm font-medium text-slate-700">Common symptoms</div>
+              <div className="flex flex-wrap gap-2">
+                {COMMON_SYMPTOMS.map((symptom) => {
+                  const isActive = requestedPartDescription === symptom.description;
                   return (
                     <button
-                      key={type.value}
+                      key={symptom.label}
                       type="button"
-                      onClick={() => setApplianceType(type.value)}
-                      className={`group flex flex-col items-center justify-center rounded-xl border-2 p-4 text-center transition-all ${
-                        applianceType === type.value
-                          ? "border-blue-600 bg-blue-50 text-blue-900 shadow-sm"
-                          : "border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50/50"
+                      onClick={() =>
+                        setRequestedPartDescription(isActive ? "" : symptom.description)
+                      }
+                      className={`rounded-full border px-4 py-2 text-sm font-medium transition-all ${
+                        isActive
+                          ? "border-blue-600 bg-blue-600 text-white shadow-sm"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-blue-400 hover:text-blue-700"
                       }`}
                     >
-                      <div className={`mb-3 flex h-12 w-12 items-center justify-center rounded-full transition-colors ${
-                        applianceType === type.value
-                          ? "bg-blue-600 text-white"
-                          : "bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-600"
-                      }`}>
-                        <Icon className="h-6 w-6" />
-                      </div>
-                      <span className="text-sm font-semibold">{type.label}</span>
+                      {symptom.label}
                     </button>
                   );
                 })}
@@ -756,27 +814,67 @@ export default function PartFinderClient() {
 
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">
-                What part or symptom are you looking for?{" "}
+                Or describe it yourself{" "}
                 <span className="font-normal text-slate-400">(optional)</span>
               </label>
               <Textarea
                 value={requestedPartDescription}
                 onChange={(e) => setRequestedPartDescription(e.target.value)}
-                placeholder="E.g., door gasket, drain pump, ice maker not working, loud noise during spin..."
+                placeholder="E.g., door gasket is torn, pump humming but not draining, makes a grinding noise..."
                 className="min-h-[84px] resize-y"
                 maxLength={500}
               />
             </div>
 
-            <Button
-              type="button"
-              className="w-full"
-              disabled={!applianceType}
-              onClick={() => setCurrentStep("identify-machine")}
-            >
-              <Search className="h-4 w-4" />
-              Continue: Find Your Machine
-            </Button>
+            <div>
+              <div className="mb-3 text-sm font-medium text-slate-700">
+                Appliance type{" "}
+                <span className="font-normal text-slate-400">(optional — helps narrow results)</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {APPLIANCE_TYPES.map((type) => {
+                  const Icon = type.icon;
+                  return (
+                    <button
+                      key={type.value}
+                      type="button"
+                      onClick={() =>
+                        setApplianceType(applianceType === type.value ? "" : type.value)
+                      }
+                      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
+                        applianceType === type.value
+                          ? "border-blue-600 bg-blue-50 text-blue-900"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-blue-300 hover:text-blue-700"
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      {type.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <Button
+                type="button"
+                className="w-full"
+                disabled={!requestedPartDescription.trim() && !applianceType}
+                onClick={() => setCurrentStep("identify-machine")}
+              >
+                <Search className="h-4 w-4" />
+                {requestedPartDescription.trim()
+                  ? "Find parts for this symptom"
+                  : "Continue to model number"}
+              </Button>
+              <button
+                type="button"
+                onClick={() => setCurrentStep("identify-machine")}
+                className="text-center text-xs text-slate-500 underline hover:text-slate-700"
+              >
+                Skip — I already have my model number
+              </button>
+            </div>
           </CardContent>
         </Card>
       ) : null}
@@ -989,6 +1087,38 @@ export default function PartFinderClient() {
                 </div>
               ) : null}
 
+
+              {machineReady && matchedSymptom && symptomCauses.length > 0 ? (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                  <div className="font-semibold text-amber-900">
+                    Common causes: {matchedSymptom.label.toLowerCase()}
+                  </div>
+                  <div className="mt-3 space-y-3">
+                    {symptomCauses.map((item, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <div className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-amber-200 text-xs font-bold text-amber-900">
+                          {i + 1}
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-amber-900">{item.cause}</div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setRequestedPartDescription(item.searchHint);
+                              setPartSearchSubmitted(false);
+                              setTargetedParts([]);
+                              setTargetedPartMessage(null);
+                            }}
+                            className="mt-0.5 text-xs text-amber-700 underline hover:text-amber-900"
+                          >
+                            Search for this part &rarr;
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
 
               {machineReady ? (
                 <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
