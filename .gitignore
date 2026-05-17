@@ -34,6 +34,7 @@ build_err_*.txt
 !public/road-runner-logo.png
 !public/images/roadrunnerappliance-logo.png
 !public/images/roadrunner-running.png
+!public/images/referral-badge-final.png
 *.zip
 *.log
 !README.md
