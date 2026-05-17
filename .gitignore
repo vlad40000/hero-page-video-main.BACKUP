@@ -31,6 +31,8 @@ build_err_*.txt
 *_files.txt
 *.txt
 *.png
+!public/road-runner-logo.png
+!public/images/roadrunnerappliance-logo.png
 *.zip
 *.log
 !README.md
