@@ -5,7 +5,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { X, Boxes, AlertTriangle, Loader2 } from 'lucide-react';
+import { X, Boxes, AlertTriangle } from 'lucide-react';
+import { LoadingLogo } from '@/components/LoadingLogo';
 
 import { MarketplaceListing, ItemCondition } from '@/lib/inventory-types';
 import { analyzeProductImageAction, lookupApplianceSpecsAction, analyzeListingPhotoAction, generateDescriptionAction } from '@/lib/flood-engine/actions';
@@ -657,7 +658,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
                             >
                                 {isSubmitting ? (
                                     <div className="flex items-center justify-center gap-2">
-                                        <Loader2 className="animate-spin" size={20} />
+                                        <LoadingLogo size={22} label="Saving unit" />
                                         <span>Saving to DB...</span>
                                     </div>
                                 ) : (

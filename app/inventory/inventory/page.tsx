@@ -4,7 +4,7 @@
 import { useInventoryContext } from '../layout';
 import ItemCard from '../_components/ItemCard';
 import InventoryTable from '../_components/InventoryTable';
-import { Package, Plus, RefreshCw, Loader2, LayoutGrid, List, Search } from 'lucide-react';
+import { Package, Plus, LayoutGrid, List, Search } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { ItemStatus, ItemCondition } from '@/lib/inventory-types';
 import { formatUsd } from '@/lib/money';

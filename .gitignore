@@ -33,6 +33,7 @@ build_err_*.txt
 *.png
 !public/road-runner-logo.png
 !public/images/roadrunnerappliance-logo.png
+!public/images/roadrunner-running.png
 *.zip
 *.log
 !README.md

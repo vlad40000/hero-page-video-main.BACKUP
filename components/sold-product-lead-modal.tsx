@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LoadingLogo } from "@/components/LoadingLogo";
 import {
   Dialog,
   DialogContent,
@@ -152,7 +153,7 @@ export function SoldProductLeadModal({
           {message && <p className="text-sm font-medium text-emerald-700">{message}</p>}
 
           <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+            {isSubmitting ? <LoadingLogo size={18} label="Sending request" className="mr-2" /> : <Send className="mr-2 h-4 w-4" />}
             Send Request
           </Button>
         </form>

@@ -9,7 +9,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Check, X, Search, Info, Loader2 } from "lucide-react";
+import { Check, X, Search, Info } from "lucide-react";
+import { LoadingLogo } from "@/components/LoadingLogo";
 import { submitPreQual } from "@/actions/leasing";
 
 const REGION_MAP: Record<string, string[]> = {
@@ -429,7 +430,7 @@ export default function PreQualPage() {
                                     >
                                         {isSubmitting ? (
                                             <>
-                                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                                <LoadingLogo size={22} label="Submitting pre-qualification" className="mr-2" />
                                                 Submitting...
                                             </>
                                         ) : "Submit"}

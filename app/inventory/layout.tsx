@@ -8,6 +8,7 @@ import ConnectModal from './_components/ConnectModal';
 import { useInventory } from '@/lib/flood-engine/hooks/useInventory';
 import { MarketplaceListing, AppView, ItemStatus } from '@/lib/inventory-types';
 import { Plus, RefreshCw, Database, Search, Menu } from 'lucide-react';
+import { LoadingLogo } from '@/components/LoadingLogo';
 import { getInventoryForEmployee, resetAndSyncFullInventory, syncInventoryToDatabase, logToServer, deleteInventoryFromDatabase } from '@/lib/inventory-actions';
 import { generateSlug } from '@/lib/inventory-utils';
 import { toast } from 'sonner';
@@ -182,7 +183,7 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
                                 className="hidden md:flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors border border-transparent hover:border-indigo-100"
                                 title="Fetch current live database items"
                             >
-                                <RefreshCw size={16} className={inventory.loading ? 'animate-spin' : ''} />
+                                {inventory.loading ? <LoadingLogo size={18} label="Syncing database" /> : <RefreshCw size={16} />}
                                 <span className="hidden lg:inline">Sync DB</span>
                             </button>
 

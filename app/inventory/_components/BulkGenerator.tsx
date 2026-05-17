@@ -4,7 +4,8 @@
 
 import React, { useState } from 'react';
 import { ItemStatus, MarketplaceListing, WebsiteParams } from '@/lib/inventory-types';
-import { Zap, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Zap, CheckCircle2, AlertCircle } from 'lucide-react';
+import { LoadingLogo } from '@/components/LoadingLogo';
 import { generateBulkDescriptionsAction } from '@/lib/flood-engine/actions';
 import { getDisplayUrl } from '@/lib/utils';
 import { formatUsd } from '@/lib/money';
@@ -165,7 +166,7 @@ const BulkGenerator: React.FC<BulkGeneratorProps> = ({ availableItems, onGenerat
                     >
                         {isGenerating ? (
                             <>
-                                <Loader2 className="animate-spin" size={18} />
+                                <LoadingLogo size={20} label="Generating listings" />
                                 Generating...
                             </>
                         ) : (

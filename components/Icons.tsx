@@ -13,7 +13,6 @@ import {
     FileText,
     Home,
     Info,
-    Loader2,
     Menu,
     Printer,
     Search,
@@ -27,6 +26,7 @@ import {
     type LucideIcon,
     type LucideProps,
 } from 'lucide-react';
+import { LoadingLogo } from './LoadingLogo';
 
 type IconProps = LucideProps;
 
@@ -49,7 +49,9 @@ export const AlertTriangleIcon = withDefaultSize(AlertTriangle, 16);
 export const ShoppingCartIcon = withDefaultSize(ShoppingCart, 16);
 export const CalendarIcon = withDefaultSize(Calendar, 16);
 export const CameraIcon = withDefaultSize(Camera, 16);
-export const LoaderIcon = withDefaultSize(Loader2, 16);
+export function LoaderIcon({ size = 16, className }: IconProps) {
+    return <LoadingLogo size={Number(size) || 16} className={className} />;
+}
 export const ChevronDownIcon = withDefaultSize(ChevronDown, 16);
 export const ArrowRightIcon = withDefaultSize(ArrowRight, 16);
 export const UserIcon = withDefaultSize(User, 16);

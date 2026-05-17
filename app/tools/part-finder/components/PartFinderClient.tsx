@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { ChangeEvent, FormEvent, useMemo, useRef, useState, useTransition } from "react";
 import {
   AlertCircle,
@@ -8,18 +9,18 @@ import {
   Camera,
   CheckCircle2,
   ChevronRight,
-  Loader2,
   Phone,
   Search,
   Send,
   Upload,
   Wrench,
+  PackageSearch,
   Refrigerator,
   WashingMachine,
   Wind,
   Flame,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { LoadingLogo } from "@/components/LoadingLogo";
 import {
   Dialog,
   DialogContent,
@@ -111,7 +112,7 @@ const PART_DESCRIPTION_STOP_WORDS = new Set([
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
-type SlideKey = "symptom" | "type" | "model" | "searching" | "part";
+type SlideKey = "welcome" | "symptom" | "type" | "model" | "searching" | "part";
 type RouteCandidate = { revision: string; label: string; confidence?: number };
 type RouteResult = PartFinderResponse & { candidates?: RouteCandidate[]; reason?: string };
 type ImageInputSource = "upload" | "camera";
@@ -171,14 +172,22 @@ function formatPrice(v: unknown) {
 
 function ProgressBar({ step, total }: { step: number; total: number }) {
   const pct = Math.round((step / total) * 100);
+  const labels = ["Issue", "Type", "Model", "Parts"];
   return (
     <div className="w-full">
-      <div className="mb-1.5 flex justify-between text-xs text-slate-400">
+      <div className="mb-1.5 flex justify-between text-xs font-medium text-slate-400">
         <span>Step {step} of {total}</span>
         <span>{pct}%</span>
       </div>
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
         <div className="h-full rounded-full bg-blue-600 transition-all duration-500 ease-out" style={{ width: `${pct}%` }} />
+      </div>
+      <div className="mt-2 hidden grid-cols-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400 sm:grid">
+        {labels.map((label, index) => (
+          <span key={label} className={index + 1 <= step ? "text-blue-700" : ""}>
+            {label}
+          </span>
+        ))}
       </div>
     </div>
   );
@@ -188,7 +197,7 @@ function SlideShell({ children, onBack, step, total }: {
   children: React.ReactNode; onBack?: () => void; step: number; total: number;
 }) {
   return (
-    <div className="flex min-h-[560px] flex-col animate-in fade-in slide-in-from-right-4 duration-300">
+    <div className="fix-step-enter flex min-h-[560px] flex-col">
       <div className="px-6 pt-6 pb-2">
         <div className="flex items-center gap-3">
           {onBack ? (
@@ -221,7 +230,7 @@ function ContinueBtn({ onClick, disabled, loading, label = "Continue" }: {
     <button type="button" onClick={onClick} disabled={disabled || loading}
       className="mt-7 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-4 text-[15px] font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40">
       {loading
-        ? <><Loader2 className="h-5 w-5 animate-spin" /> Working…</>
+        ? <><LoadingLogo size={22} label="Working" /> Working…</>
         : <>{label}<ArrowRight className="h-5 w-5" /></>}
     </button>
   );
@@ -229,12 +238,92 @@ function ContinueBtn({ onClick, disabled, loading, label = "Continue" }: {
 
 // ─── main ─────────────────────────────────────────────────────────────────────
 
+function ToolHeader() {
+  return (
+    <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center gap-3">
+        <div className="relative h-14 w-20 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+          <Image src="/images/roadrunner-running.png" alt="Road Runner Appliance" fill sizes="80px" className="object-contain p-1" priority />
+        </div>
+        <div>
+          <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-blue-700">Road Runner Appliance</p>
+          <h1 className="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">Parts Lookup</h1>
+        </div>
+      </div>
+      <a
+        href={SHOP_PHONE_HREF}
+        onClick={() => track("tool_part_finder_header_call")}
+        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800"
+      >
+        <Phone className="h-4 w-4" />
+        Call Now
+      </a>
+    </div>
+  );
+}
+
+function WelcomeScreen({ onStart, onKnownPart }: { onStart: () => void; onKnownPart: () => void }) {
+  return (
+    <div className="fix-step-enter grid min-h-[560px] overflow-hidden md:grid-cols-[1.05fr_0.95fr]">
+      <div className="flex flex-col justify-center px-6 py-10 md:px-10">
+        <div className="mb-5 inline-flex w-fit items-center gap-2 rounded-full bg-blue-50 px-4 py-2 text-xs font-extrabold uppercase tracking-[0.18em] text-blue-700">
+          <PackageSearch className="h-4 w-4" />
+          Live catalog lookup
+        </div>
+        <h2 className="max-w-md text-3xl font-black leading-tight tracking-tight text-slate-950 sm:text-4xl">
+          Find the right appliance part.
+        </h2>
+        <p className="mt-4 max-w-md text-base leading-7 text-slate-600">
+          Answer a few quick questions, enter the model number, and Road Runner will check the current parts catalog for matches and pricing.
+        </p>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <button
+            type="button"
+            onClick={onStart}
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 active:scale-[0.98]"
+          >
+            Get Started
+            <ArrowRight className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={onKnownPart}
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 text-sm font-bold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50"
+          >
+            <Search className="h-4 w-4" />
+            I know the part
+          </button>
+        </div>
+      </div>
+      <div className="flex flex-col justify-center border-t border-slate-100 bg-slate-50 px-6 py-8 md:border-l md:border-t-0 md:px-8">
+        <div className="grid gap-3">
+          {[
+            ["1", "Describe the issue", "Optional symptom details help narrow likely parts."],
+            ["2", "Enter the model", "Use the rating plate photo reader or type the model number."],
+            ["3", "Review matches", "Prices and availability come from the live parts pipeline."],
+          ].map(([step, title, copy]) => (
+            <div key={step} className="fix-card-hover rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="flex gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-black text-white">{step}</span>
+                <div>
+                  <p className="font-bold text-slate-900">{title}</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-500">{copy}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function PartFinderClient() {
   const ratingPlateCameraRef = useRef<HTMLInputElement>(null);
   const partStickerCameraRef = useRef<HTMLInputElement>(null);
 
   // wizard
-  const [slide, setSlide] = useState<SlideKey>("symptom");
+  const [slide, setSlide] = useState<SlideKey>("welcome");
   const [applianceType, setApplianceType] = useState("");
   const [modelNumber, setModelNumber] = useState("");
   const [serialNumber, setSerialNumber] = useState("");
@@ -476,23 +565,19 @@ export default function PartFinderClient() {
   // ── render ────────────────────────────────────────────────────────────────────
 
   return (
-    <div className="space-y-8">
-      {/* page title */}
-      <div className="mx-auto max-w-3xl text-center">
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-blue-700">
-          🔧 Parts Lookup
-        </div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 md:text-5xl">
-          Find the exact part for your appliance
-        </h1>
-        <p className="mx-auto mt-3 max-w-xl text-base leading-7 text-slate-500">
-          Answer three quick questions — we&apos;ll show you the right part, the price, and whether Road Runner has it.
-        </p>
-      </div>
+    <div className="mx-auto max-w-5xl">
+      <ToolHeader />
 
       {/* wizard */}
-      <div className="mx-auto max-w-2xl">
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="mx-auto max-w-3xl">
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-950/5">
+
+          {slide === "welcome" && (
+            <WelcomeScreen
+              onStart={() => setSlide("symptom")}
+              onKnownPart={() => { setSymptomDesc(""); setCustomSymptom(""); setSlide("model"); }}
+            />
+          )}
 
           {/* ── SLIDE 1: symptom ─────────────────────────────────────────────── */}
           {slide === "symptom" && (
@@ -623,11 +708,7 @@ export default function PartFinderClient() {
           {/* ── SEARCHING ─────────────────────────────────────────────────────── */}
           {slide === "searching" && (
             <div className="flex min-h-[560px] flex-col items-center justify-center gap-6 px-6 py-12 text-center animate-in fade-in duration-300">
-              <div className="relative flex h-20 w-20 items-center justify-center">
-                <div className="absolute inset-0 rounded-full border-4 border-blue-100" />
-                <div className="absolute inset-0 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
-                <span className="text-2xl">🔍</span>
-              </div>
+              <LoadingLogo size={96} label="Looking up your appliance" />
               <div>
                 <h3 className="text-xl font-bold text-slate-900">Looking up your appliance…</h3>
                 <p className="mt-1 animate-pulse text-sm text-slate-400">Searching parts catalogs</p>
@@ -723,7 +804,7 @@ export default function PartFinderClient() {
                       <button type="submit"
                         disabled={isResolvingPart || (!requestedPartNumber.trim() && !requestedPartDescription.trim())}
                         className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-40">
-                        {isResolvingPart ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                        {isResolvingPart ? <LoadingLogo size={18} label="Searching parts" /> : <Search className="h-4 w-4" />}
                         {isResolvingPart ? "Searching…" : "Search parts"}
                       </button>
                       <button type="button"
@@ -752,7 +833,7 @@ export default function PartFinderClient() {
                         </label>
                         <button type="button" onClick={handlePartImageExtract} disabled={!partImageFile || isReadingPartImage}
                           className="flex items-center gap-1.5 rounded-lg bg-slate-800 px-3 py-2 text-xs font-medium text-white transition hover:bg-slate-700 disabled:opacity-40">
-                          {isReadingPartImage ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                          {isReadingPartImage ? <LoadingLogo size={16} label="Reading sticker" /> : null}
                           {isReadingPartImage ? "Reading…" : "Read sticker"}
                         </button>
                       </div>
@@ -780,7 +861,7 @@ export default function PartFinderClient() {
                 {partSearchSubmitted && (requestedPartNumber.trim() || requestedPartDescription.trim()) && (
                   <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm">
                     {isResolvingPart ? (
-                      <span className="flex items-center gap-2 text-slate-600"><Loader2 className="h-4 w-4 animate-spin" /> Checking availability and pricing…</span>
+                      <span className="flex items-center gap-2 text-slate-600"><LoadingLogo size={18} label="Checking availability and pricing" /> Checking availability and pricing…</span>
                     ) : displayedParts.length > 0 ? (
                       <span className="font-medium text-emerald-700">✓ {displayedParts.length} match{displayedParts.length === 1 ? "" : "es"} found</span>
                     ) : (
@@ -839,7 +920,7 @@ export default function PartFinderClient() {
                     </div>
                     <button type="button" onClick={() => handleContinueSearch()} disabled={isSearching}
                       className="flex items-center gap-1.5 rounded-lg border border-amber-300 bg-white px-4 py-2 text-sm font-semibold text-amber-900 transition hover:bg-amber-50 disabled:opacity-40">
-                      {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wrench className="h-4 w-4" />}
+                      {isSearching ? <LoadingLogo size={18} label="Searching more parts" /> : <Wrench className="h-4 w-4" />}
                       {isSearching ? "Searching…" : "Check more"}
                     </button>
                   </div>
@@ -877,7 +958,7 @@ export default function PartFinderClient() {
                           ))}
                           <button type="submit" disabled={isSendingLead}
                             className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50">
-                            {isSendingLead ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                            {isSendingLead ? <LoadingLogo size={18} label="Sending details" /> : <Send className="h-4 w-4" />}
                             {isSendingLead ? "Sending…" : "Send to Road Runner"}
                           </button>
                           {leadSuccess && (

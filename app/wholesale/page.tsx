@@ -6,7 +6,8 @@
 import React, { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { submitCommercialInquiry } from '@/actions/wholesale';
-import { CheckIcon, LoaderIcon, ArrowRightIcon } from '@/components/Icons';
+import { CheckIcon, LoaderIcon } from '@/components/Icons';
+import { LoadingLogo } from '@/components/LoadingLogo';
 import Link from 'next/link';
 
 function CommercialContent() {
@@ -213,7 +214,7 @@ function CommercialContent() {
                                     disabled={isSubmitting}
                                     className={`w-full py-4 text-white rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${activeTab === 'dealer' ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/30' : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/30'}`}
                                 >
-                                    {isSubmitting ? <LoaderIcon className="animate-spin" /> : "Submit Application"}
+                                    {isSubmitting ? <LoaderIcon /> : "Submit Application"}
                                 </button>
                             </form>
                         )}
@@ -226,7 +227,7 @@ function CommercialContent() {
 
 export default function CommercialPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-slate-50 animate-pulse" />}>
+        <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-slate-50"><LoadingLogo size={96} label="Loading wholesale page" /></div>}>
             <CommercialContent />
         </Suspense>
     );

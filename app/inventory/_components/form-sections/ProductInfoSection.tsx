@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
-import { Sparkles, Loader2, Wand2, Link as LinkIcon, Facebook, Globe, Zap } from 'lucide-react';
+import { Sparkles, Wand2, Link as LinkIcon, Facebook, Globe, Zap } from 'lucide-react';
+import { LoadingLogo } from '@/components/LoadingLogo';
 import { CATEGORIES } from '@/lib/flood-engine/constants';
 import { ItemCondition } from '@/lib/inventory-types';
 import { InventoryFormValues } from '../inventory-schema';
@@ -91,7 +92,7 @@ export const ProductInfoSection: React.FC<ProductInfoSectionProps> = ({
                         disabled={!serial || !brand || isLookingUpSerial || isAnalyzing}
                         className="bg-indigo-600 text-white px-3 rounded-xl font-bold flex items-center gap-2 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors"
                     >
-                        {isLookingUpSerial ? <Loader2 className="animate-spin" size={18} /> : <Wand2 size={18} />}
+                        {isLookingUpSerial ? <LoadingLogo size={20} label="Looking up serial" /> : <Wand2 size={18} />}
                         <span className="hidden sm:inline">Auto-Fill</span>
                     </button>
                 </div>
@@ -159,7 +160,7 @@ export const ProductInfoSection: React.FC<ProductInfoSectionProps> = ({
                         className="bg-slate-200 text-slate-400 px-6 py-2.5 rounded-xl font-bold transition-all disabled:cursor-not-allowed flex items-center gap-2 enabled:bg-indigo-600 enabled:text-white enabled:shadow-lg enabled:shadow-indigo-100 text-sm"
                     >
                         {isAnalyzing ? (
-                            <Loader2 className="animate-spin" size={18} />
+                            <LoadingLogo size={20} label="Generating listings" />
                         ) : (
                             <Zap size={18} className={cn(brand && model && "fill-white")} />
                         )}

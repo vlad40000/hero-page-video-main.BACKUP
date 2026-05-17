@@ -1,11 +1,9 @@
 import { Metadata } from 'next';
 import AuditorInterface from './components/AuditorInterface';
 import { SEOContent } from './components/SEOContent';
-import { ChevronLeft } from 'lucide-react';
-import Link from 'next/link';
 
 export const metadata: Metadata = {
-    title: 'Fix It or Ditch It? Appliance Repair Advisor | Road Runner Appliance',
+    title: 'Fix It or Ditch It? | Road Runner Appliance',
     description: 'Describe your appliance symptoms and get likely causes, parts + labor costs, and a repair-or-replace recommendation in minutes. Free AI diagnostic from Road Runner Appliance.',
     alternates: {
         canonical: '/tools/fix',
@@ -68,19 +66,9 @@ export default function ApplianceAuditorPage() {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
             />
-            <div className="py-12 md:py-16">
+            <div className="fix-tool-page min-h-screen py-10 md:py-14">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    {/* Breadcrumb / Back Link */}
-                    <div className="mb-8 flex items-center gap-2 text-sm font-medium text-slate-500">
-                        <Link href="/tools" className="hover:text-blue-600 transition-colors">Tools Hub</Link>
-                        <span>/</span>
-                        <span className="text-slate-900">Repair Cost Estimator</span>
-                    </div>
-
-                    {/* Main Interface */}
                     <AuditorInterface />
-
-                    {/* SEO & Context Content */}
                     <SEOContent />
                 </div>
             </div>

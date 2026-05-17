@@ -2,7 +2,8 @@
 /* eslint-disable @next/next/no-img-element */
 
 import React, { useRef } from 'react';
-import { Camera, ImageIcon, Loader2, ScanLine, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Camera, ImageIcon, ScanLine, CheckCircle, AlertTriangle } from 'lucide-react';
+import { LoadingLogo } from '@/components/LoadingLogo';
 import { cn, getDisplayUrl } from '@/lib/utils';
 import { ItemCondition } from '@/lib/inventory-types';
 
@@ -50,7 +51,7 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
                             <div className="absolute inset-0 flex items-center justify-center">
                                 {isAnalyzingProduct ? (
                                     <div className="flex flex-col items-center bg-white/90 backdrop-blur px-3 py-2 rounded-xl shadow-sm">
-                                        <Loader2 className="animate-spin text-blue-600 mb-1" size={20} />
+                                        <LoadingLogo size={28} label="Assessing listing photo" className="mb-1" />
                                         <span className="text-[10px] font-bold text-blue-800">Assessing...</span>
                                     </div>
                                 ) : (
@@ -97,7 +98,7 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
                             <div className="absolute inset-0 flex items-center justify-center">
                                 {isAnalyzingNameplate ? (
                                     <div className="flex flex-col items-center bg-white/90 backdrop-blur px-3 py-2 rounded-xl shadow-sm">
-                                        <Loader2 className="animate-spin text-indigo-600 mb-1" size={20} />
+                                        <LoadingLogo size={28} label="Reading nameplate" className="mb-1" />
                                         <span className="text-[10px] font-bold text-indigo-800">Reading...</span>
                                     </div>
                                 ) : (

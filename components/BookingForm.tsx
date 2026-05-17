@@ -95,7 +95,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({ context, onClose }) =>
                         disabled={isSubmitting}
                         className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-lg shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
                     >
-                        {isSubmitting ? <LoaderIcon className="animate-spin" /> : "Confirm Booking"}
+                        {isSubmitting ? <LoaderIcon /> : "Confirm Booking"}
                     </button>
                 </form>
             </div>

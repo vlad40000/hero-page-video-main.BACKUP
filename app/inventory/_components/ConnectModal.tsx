@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, Globe, Lock, RefreshCw, CheckCircle2, AlertCircle, Server } from 'lucide-react';
+import { LoadingLogo } from '@/components/LoadingLogo';
 import { MarketplaceListing } from '@/lib/inventory-types';
 
 interface ConnectModalProps {
@@ -149,7 +150,7 @@ const ConnectModal: React.FC<ConnectModalProps> = ({ items, onClose }) => {
                             disabled={isSyncing}
                             className="px-4 py-3 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                            {isSyncing ? <RefreshCw className="animate-spin" size={18} /> : <RefreshCw size={18} />}
+                            {isSyncing ? <LoadingLogo size={20} label="Pushing sync" /> : <RefreshCw size={18} />}
                             {isSyncing ? 'Pushing...' : 'Push Sync'}
                         </button>
                     </div>

@@ -125,3 +125,72 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes rra-loading-logo {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: translateX(-2px) scale(0.96);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateX(2px) scale(1.04);
+  }
+}
+
+.rra-loading-logo {
+  animation: rra-loading-logo 0.85s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rra-loading-logo {
+    animation: none;
+  }
+}
+
+@keyframes fix-tool-fade-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fix-tool-page {
+  --fix-brand-primary: oklch(0.55 0.2 250);
+  --fix-brand-dark: oklch(0.15 0.04 250);
+  --fix-brand-emerald: oklch(0.55 0.16 160);
+  --fix-brand-gold: oklch(0.85 0.15 85);
+  --fix-bg: oklch(0.975 0.004 250);
+  --fix-text: oklch(0.2 0.03 250);
+  --fix-muted: oklch(0.5 0.02 250);
+  --fix-border: oklch(0.91 0.008 250);
+  background:
+    radial-gradient(circle at top left, oklch(0.85 0.15 85 / 0.18), transparent 28rem),
+    linear-gradient(180deg, oklch(0.99 0.002 250), var(--fix-bg));
+  color: var(--fix-text);
+  font-family: "DM Sans", var(--font-sans), system-ui, sans-serif;
+}
+
+.fix-tool-page ::selection {
+  background: oklch(0.55 0.2 250 / 0.15);
+}
+
+.fix-step-enter {
+  animation: fix-tool-fade-slide-in 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fix-card-hover {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.fix-card-hover:hover {
+  border-color: oklch(0.55 0.2 250 / 0.55);
+  box-shadow: 0 8px 25px -5px rgb(0 0 0 / 0.08);
+  transform: translateY(-2px);
+}
