@@ -3,6 +3,7 @@ export type PartFinderStatus =
   | "parts_partial"
   | "needs_fallback"
   | "no_result"
+  | "provider_exhausted"
   | "variant_resolution_needed";
 
 export type PartFinderPart = {
@@ -60,6 +61,10 @@ export type PartFinderResponse = {
   reason?: string;
   cache?: string;
   applicabilityMode?: string;
+  completeness?: unknown;
+  providerEvidences?: unknown[];
+  retrievalTrace?: unknown;
+  providerTrace?: unknown[];
 };
 
 export type StartSearchInput = {

@@ -105,6 +105,13 @@ export function normalizeCacheStatus(payload: unknown): NormalizeCacheStatusResu
         reason: "passthrough:no_result",
       };
 
+    case "provider_exhausted":
+      return {
+        durableStatus: "no_result",
+        cacheEligibleStatus: false,
+        reason: "mapped:provider_exhausted",
+      };
+
     case "failed":
       return {
         durableStatus: "failed",

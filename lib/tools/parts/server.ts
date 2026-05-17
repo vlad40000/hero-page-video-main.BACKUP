@@ -32,6 +32,7 @@ function normalizeStatus(status: unknown): PartFinderStatus {
   if (value === "parts_partial") return "parts_partial";
   if (value === "needs_fallback") return "needs_fallback";
   if (value === "no_result") return "no_result";
+  if (value === "provider_exhausted") return "provider_exhausted";
 
   // donor internal statuses
   if (value === "complete" || value === "target_met") return "bom_complete";
@@ -282,6 +283,14 @@ function toPublicResponse(raw: Record<string, unknown>): PartFinderResponse {
     reason: raw.reason ? String(raw.reason) : undefined,
     cache: raw.cache ? String(raw.cache) : undefined,
     applicabilityMode: raw.applicabilityMode ? String(raw.applicabilityMode) : undefined,
+    completeness: raw.completeness,
+    providerEvidences: Array.isArray(raw.providerEvidences) ? raw.providerEvidences : undefined,
+    retrievalTrace: raw.retrievalTrace,
+    providerTrace: Array.isArray(raw.providerTrace)
+      ? raw.providerTrace
+      : raw.retrievalTrace && typeof raw.retrievalTrace === "object" && Array.isArray((raw.retrievalTrace as Record<string, unknown>).providerAttempts)
+      ? ((raw.retrievalTrace as Record<string, unknown>).providerAttempts as unknown[])
+      : undefined,
   };
 }
 
