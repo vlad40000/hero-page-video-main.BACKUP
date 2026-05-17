@@ -707,11 +707,11 @@ export default function PartFinderClient() {
           Parts Lookup
         </div>
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 md:text-5xl">
-          Find the right replacement part
+          Find the exact part for your appliance
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 md:text-lg">
-          Enter a model number, add a serial number if you have it, or take/upload a
-          rating plate photo. We&apos;ll surface likely OEM parts and fitment details fast.
+          Tell us what&apos;s wrong or enter your model number — we&apos;ll show you the right part,
+          the price, and whether Road Runner has it in stock.
         </p>
       </div>
 
@@ -786,9 +786,9 @@ export default function PartFinderClient() {
         <CardHeader>
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <CardTitle>Identify machine</CardTitle>
+              <CardTitle>Find your appliance</CardTitle>
               <CardDescription>
-                Start with the exact model number or upload a rating plate photo. Part details come next.
+                Enter the model number from your appliance label, or snap a photo and we&apos;ll read it for you.
               </CardDescription>
             </div>
             {applianceType && (
@@ -841,7 +841,7 @@ export default function PartFinderClient() {
                 ) : (
                   <>
                     <Search className="h-4 w-4" />
-                    {result ? "Refresh Machine Match" : "Identify Machine"}
+                    {result ? "Search Again" : "Find Parts"}
                   </>
                 )}
               </Button>
@@ -938,7 +938,7 @@ export default function PartFinderClient() {
             <CardHeader>
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <CardTitle>Search result</CardTitle>
+                  <CardTitle>Machine found</CardTitle>
                   <CardDescription>{result.message}</CardDescription>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -963,7 +963,7 @@ export default function PartFinderClient() {
             </CardHeader>
             <CardContent className="space-y-6">
               {topSummary ? (
-                <div className="grid gap-3 md:grid-cols-4">
+                <div className="grid gap-3 md:grid-cols-3">
                   <div className="rounded-xl bg-slate-50 p-4">
                     <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                       Model
@@ -986,29 +986,9 @@ export default function PartFinderClient() {
                       {routeIdentity.applianceType || "Unknown appliance type"}
                     </div>
                   </div>
-                  <div className="rounded-xl bg-slate-50 p-4">
-                    <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                      Confidence
-                    </div>
-                    <div className="mt-1 font-bold capitalize text-slate-900">
-                      {routeIdentity.confidence}
-                    </div>
-                    {routeIdentity.manufactureHint ? (
-                      <div className="mt-1 text-xs text-slate-500">{routeIdentity.manufactureHint}</div>
-                    ) : null}
-                  </div>
                 </div>
               ) : null}
 
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
-                <div className="font-semibold text-slate-900">Machine identity</div>
-                <div className="mt-1">{routeIdentity.reason}</div>
-                {routeIdentity.rulesApplied.length ? (
-                  <div className="mt-2 text-xs text-slate-500">
-                    Rules: {routeIdentity.rulesApplied.join(" • ")}
-                  </div>
-                ) : null}
-              </div>
 
               {machineReady ? (
                 <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
@@ -1073,7 +1053,7 @@ export default function PartFinderClient() {
                           });
                         }}
                       >
-                        {showAllParts ? "Hide Full List" : "Show All Parts"}
+                        {showAllParts ? "Hide Full List" : "Browse All Parts"}
                       </Button>
                     </div>
 
@@ -1191,22 +1171,6 @@ export default function PartFinderClient() {
                           </div>
                         ) : null}
 
-                        {partImageConfidence ? (
-                          <div className="mt-2 text-xs text-slate-500">
-                            OCR confidence: {partImageConfidence}
-                          </div>
-                        ) : null}
-
-                        {partImageRawText ? (
-                          <details className="mt-2">
-                            <summary className="cursor-pointer text-xs text-slate-500">
-                              View extracted text
-                            </summary>
-                            <div className="mt-2 whitespace-pre-wrap rounded-lg bg-white p-3 text-xs text-slate-600">
-                              {partImageRawText}
-                            </div>
-                          </details>
-                        ) : null}
                       </div>
                     ) : null}
                   </div>
@@ -1225,7 +1189,7 @@ export default function PartFinderClient() {
                   <div className="mt-1 text-sm text-violet-800">
                     {filteredCandidates.length > 0
                       ? result.reason || "Choose the exact revision for the right diagram set."
-                      : "The returned revision candidates do not match the searched model family, so they are hidden on this route."}
+                      : "We need a bit more detail to show the right parts for your specific unit. Try uploading a rating plate photo, or send this to Road Runner for shop assistance."}
                   </div>
                   {filteredCandidates.length > 0 ? (
                     <div className="mt-4 flex flex-wrap gap-2">
@@ -1254,7 +1218,7 @@ export default function PartFinderClient() {
                   {isResolvingPart ? (
                     <div className="flex items-center gap-2 font-medium text-slate-800">
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Checking supplier catalogs for a verified part number and price...
+                      Checking parts availability and pricing...
                     </div>
                   ) : displayedParts.length > 0 ? (
                     targetedPartMessage || `${displayedParts.length} match${displayedParts.length === 1 ? "" : "es"} found.`
@@ -1277,8 +1241,8 @@ export default function PartFinderClient() {
 
               {!partSearchSubmitted && !requestedPartNumber.trim() && !requestedPartDescription.trim() && !showAllParts ? (
                 <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-600">
-                  Machine identified. Enter a part number or describe the part above for a faster customer flow, or click{" "}
-                  <span className="font-semibold">Show All Parts</span>.
+                  Machine identified. Enter a part number, describe what you need, or click{" "}
+                  <span className="font-semibold">Browse All Parts</span> to see the full list.
                 </div>
               ) : null}
 
@@ -1288,11 +1252,10 @@ export default function PartFinderClient() {
                     <table className="min-w-full divide-y divide-slate-200 text-sm">
                       <thead className="bg-slate-50">
                         <tr>
-                          <th className="px-4 py-3 text-left font-semibold text-slate-700">Part</th>
-                          <th className="px-4 py-3 text-left font-semibold text-slate-700">OEM #</th>
-                          <th className="px-4 py-3 text-left font-semibold text-slate-700">Category</th>
+                          <th className="px-4 py-3 text-left font-semibold text-slate-700">Part Name</th>
+                          <th className="px-4 py-3 text-left font-semibold text-slate-700">Part #</th>
                           <th className="px-4 py-3 text-left font-semibold text-slate-700">Price</th>
-                          <th className="px-4 py-3 text-right font-semibold text-slate-700">Action</th>
+                          <th className="px-4 py-3 text-right font-semibold text-slate-700">Order</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 bg-white">
@@ -1303,9 +1266,6 @@ export default function PartFinderClient() {
                             </td>
                             <td className="px-4 py-3 font-mono text-slate-900">
                               {part.canonicalPartNumber}
-                            </td>
-                            <td className="px-4 py-3 text-slate-600">
-                              {part.normalizedCategory || "-"}
                             </td>
                             <td className="px-4 py-3 text-slate-600">
                               {formatPrice(part.retailPrice) || "Call to confirm"}
@@ -1341,9 +1301,9 @@ export default function PartFinderClient() {
               {partSearchSubmitted && result.hasMore ? (
                 <div className="flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 md:flex-row md:items-center md:justify-between">
                   <div>
-                    <div className="font-semibold text-amber-900">Want a deeper pull?</div>
+                    <div className="font-semibold text-amber-900">Not finding the right part?</div>
                     <div className="text-sm text-amber-800">
-                      We can continue checking deeper catalog data for this model.
+                      We can check additional part catalogs for your model — this takes a moment longer.
                     </div>
                   </div>
                   <Button type="button" variant="outline" onClick={() => handleContinueSearch()}>
