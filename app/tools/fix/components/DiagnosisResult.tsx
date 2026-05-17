@@ -30,9 +30,9 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({ results, onSel
     };
 
     const verificationLabel = (status?: string) => {
-        if (status === 'model_part_verified') return 'Model-specific part verified';
-        if (status === 'targeted_part_search_verified') return 'Targeted model/part search';
-        if (status === 'price_only_unverified_fitment') return 'Price verified, fitment needs review';
+        if (status === 'model_part_verified') return 'In stock';
+        if (status === 'targeted_part_search_verified') return 'Call to confirm fit';
+        if (status === 'price_only_unverified_fitment') return 'Call to confirm';
         return 'Needs verification';
     };
 
@@ -124,9 +124,9 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({ results, onSel
                                     <span className="font-medium">${result.partPrice.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between gap-3">
-                                    <span>Price Status:</span>
+                                    <span>Availability:</span>
                                     <span className="font-medium text-right">
-                                        {`Verified catalog price${availabilityLabel(result.partAvailability) ? ` - ${availabilityLabel(result.partAvailability)}` : ''}`}
+                                        {availabilityLabel(result.partAvailability) || 'Call to confirm'}
                                     </span>
                                 </div>
                                 <div className="flex justify-between">

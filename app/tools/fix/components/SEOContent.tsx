@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { CheckCircle2, AlertCircle, MapPin, Search, Wrench, DollarSign, ArrowRight } from 'lucide-react';
+import { CheckCircle2, AlertCircle, MapPin, Search, ArrowRight } from 'lucide-react';
 
 export function SEOContent() {
     return (
@@ -10,7 +10,7 @@ export function SEOContent() {
                 <h2 className="text-3xl font-black text-slate-900 mb-6">Appliance Repair Cost Estimator</h2>
                 <div className="prose prose-slate max-w-none text-slate-600 leading-relaxed">
                     <p>
-                        Determining whether to fix an aging appliance or invest in a new one is a common dilemma for homeowners. Our **AI-powered diagnosis tool** takes the guesswork out of the equation. By scanning your appliance&apos;s rating plate and analyzing reported symptoms, we provide a real-time estimate for parts and labor based on current retail catalogs and local Hemingway service standards. Whether it&apos;s a washer that won&apos;t spin or a refrigerator that&apos;s lost its cool, get a professional-grade repair estimate in minutes.
+                        Determining whether to fix an aging appliance or invest in a new one is a common dilemma for homeowners. Our <strong>AI-powered diagnosis tool</strong> takes the guesswork out of the equation. By scanning your appliance&apos;s rating plate and analyzing reported symptoms, we provide a real-time estimate for parts and labor based on current retail catalogs and local Hemingway service standards. Whether it&apos;s a washer that won&apos;t spin or a refrigerator that&apos;s lost its cool, get a repair estimate in minutes.
                     </p>
                 </div>
             </section>
@@ -131,22 +131,22 @@ export function SEOContent() {
                 </div>
             </section>
 
-            {/* 6. Internal Linking - Related Guides */}
+            {/* 6. Internal Linking - Related Tools */}
             <section>
-                <h2 className="text-2xl font-bold text-slate-900 mb-6">Popular Repair Cost Guides</h2>
+                <h2 className="text-2xl font-bold text-slate-900 mb-6">More Appliance Tools</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {[
-                        { title: "Washer Won't Drain", slug: "washer-wont-drain-causes-repair-costs" },
-                        { title: "Dryer Not Heating", slug: "dryer-not-heating-common-fixes" },
-                        { title: "Fridge Not Cooling", slug: "refrigerator-not-cooling-troubleshooting" },
-                        { title: "Spin Cycle Loud", slug: "loud-banging-spin-cycle-diagnosis" }
-                    ].map(guide => (
+                        { title: "Find Replacement Parts", href: "/tools/part-finder" },
+                        { title: "Browse Parts Catalog", href: "/tools/parts-catalog" },
+                        { title: "Diagnostic Tool", href: "/tools/diagnostic" },
+                        { title: "Repair vs. Replace Calculator", href: "/tools/repair-vs-replace" },
+                    ].map(tool => (
                         <Link
-                            key={guide.slug}
-                            href={`/guides/repair/${guide.slug}`}
+                            key={tool.href}
+                            href={tool.href}
                             className="p-4 bg-white rounded-xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50/30 transition-all flex items-center justify-between group"
                         >
-                            <span className="text-sm font-bold text-slate-700 group-hover:text-blue-700">{guide.title}</span>
+                            <span className="text-sm font-bold text-slate-700 group-hover:text-blue-700">{tool.title}</span>
                             <ArrowRight size={16} className="text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
                         </Link>
                     ))}

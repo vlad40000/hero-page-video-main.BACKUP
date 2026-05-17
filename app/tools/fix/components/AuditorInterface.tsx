@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ValuationCalculator } from './ValuationCalculator';
 import { DiagnosisResult } from './DiagnosisResult';
 import { ApplianceData, AppStatus, DiagnosticResult } from '../types';
-import { Loader2, Camera, Search, AlertCircle, UploadCloud, ArrowLeft, ArrowRight, CheckCircle2, Stethoscope, ClipboardCheck, WashingMachine, Wind, Refrigerator, Flame } from 'lucide-react';
+import { Loader2, Camera, Search, AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, Stethoscope, ClipboardCheck, WashingMachine, Wind, Refrigerator, Flame } from 'lucide-react';
 
 const APPLIANCE_TYPES = [
     { value: 'Washer', label: 'Washer', icon: WashingMachine },
@@ -297,7 +297,7 @@ export default function AuditorInterface() {
                     Appliance Repair Cost Estimator
                 </h2>
                 <p className="text-slate-500 max-w-xl mx-auto text-sm md:text-base leading-relaxed">
-                    Gain professional-grade insights into your appliance issues. Our AI analyzes symptoms to provide parts and labor estimates, helping you make a data-driven repair vs. replace decision.
+                    Tell us what&apos;s wrong — we&apos;ll look up the parts, estimate the repair cost, and help you decide if it&apos;s worth fixing.
                 </p>
             </div>
 
@@ -406,7 +406,7 @@ export default function AuditorInterface() {
                             </button>
                             <div className="flex-1">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                    <h2 className="text-xl font-bold text-slate-900">Step 2: Identify Your Appliance</h2>
+                                    <h2 className="text-xl font-bold text-slate-900">Identify Your Appliance</h2>
                                     {applianceType && (
                                         <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{applianceType}</span>
                                     )}
@@ -438,7 +438,7 @@ export default function AuditorInterface() {
                                     <Camera className="h-5 w-5" />
                                 </div>
                                 <span className="text-sm font-medium text-slate-700">Upload Rating Plate Photo</span>
-                                <span className="text-xs text-slate-400 mt-1">AI instant detection</span>
+                                <span className="text-xs text-slate-400 mt-1">We&apos;ll read your model and serial automatically</span>
                             </button>
                         </div>
 
@@ -498,7 +498,7 @@ export default function AuditorInterface() {
                                 <ArrowLeft className="w-5 h-5 text-slate-500" />
                             </button>
                             <div>
-                                <h2 className="text-xl font-bold text-slate-900">Step 2: Describe the Problem</h2>
+                                <h2 className="text-xl font-bold text-slate-900">Describe the Problem</h2>
                                 <p className="text-sm text-slate-500">We identified your appliance. Now, what&apos;s wrong with it?</p>
                             </div>
                         </div>
@@ -535,7 +535,7 @@ export default function AuditorInterface() {
                                     </div>
                                     <div className="flex-1">
                                         <h3 className="font-bold text-slate-800">Verifying {model || 'Appliance'}...</h3>
-                                        <p className="text-xs text-slate-500">Searching specs and preloading the model-specific parts catalog.</p>
+                                        <p className="text-xs text-slate-500">Looking up your appliance specs and parts...</p>
                                     </div>
                                 </div>
                             )}
@@ -587,7 +587,7 @@ export default function AuditorInterface() {
                                 <ArrowLeft className="w-5 h-5 text-slate-500" />
                             </button>
                             <div>
-                                <h2 className="text-xl font-bold text-slate-900">Step 3: Diagnosis Results</h2>
+                                <h2 className="text-xl font-bold text-slate-900">Diagnosis Results</h2>
                                 <p className="text-sm text-slate-500">Select the issue that best matches your situation.</p>
                             </div>
                         </div>
@@ -608,7 +608,7 @@ export default function AuditorInterface() {
                                 <ArrowLeft className="w-5 h-5 text-slate-500" />
                             </button>
                             <div>
-                                <h2 className="text-xl font-bold text-slate-900">Step 4: Decision Assessment</h2>
+                                <h2 className="text-xl font-bold text-slate-900">Decision Assessment</h2>
                                 <p className="text-sm text-slate-500">Comparing repair cost against typical replacement pricing.</p>
                             </div>
                         </div>
