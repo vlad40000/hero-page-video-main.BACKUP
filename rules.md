@@ -104,7 +104,10 @@ No extra narrative.
 - `scripts/*migrate*` → one-way ops tools (must be rerunnable)
 - `lib/image-safety*` → image guards only (no DB writes)
 - `app/(employee)` → admin write path only (`InventoryForm.tsx`)
-- `lib/flood-engine/services/geminiService.ts` → Single source of truth for GEMINI AI logic
+- `lib/flood-engine/services/geminiService.ts` → Single source of truth for Flood Engine AI logic (inventory, grading, pricing)
+- `lib/tools/parts/` → appliance BOM, catalog, provider adapters, distributor gap-fill — JS layer, do not introduce TS without `.d.ts` declarations first
+- `lib/tools/parts/gemini.js` → Single source of truth for parts AI calls (BOM search, schematic search, part list retrieval)
+- `lib/ai/gemini-policy.js` → Central model routing and policy enforcement for all Gemini calls across the platform
 
 Rule: **write path does not import read UI**, and **UI does not import secrets**.
 
@@ -159,5 +162,15 @@ If failing, check:
 - Storage: Vercel Blob
 - Primary key for inventory updates: `id`
 - Hosting: Vercel
-- GEMINI_API_KEY: Priority Key (Fallback: GOOGLE_GENERATIVE_AI_API_KEY)
-- AI Model: Strictly use `gemini-3-flash-preview` for all Flash-tier logic. Never use `gemini-1.5-flash`.
+- AI Keys: `GEMINI_API_KEY` (priority), fallback `GOOGLE_GENERATIVE_AI_API_KEY`
+- AI Model: Select based on task complexity. Two-tier strategy:
+  - `gemini-3-flash-preview` — complex reasoning, vision, multi-step analysis (supervisor, reviewer, analyzer, discovery roles)
+  - `gemini-3.1-flash-lite-preview` — high-volume, cost-sensitive, simpler tasks (BOM search, diagnosis evidence, pricing lookups)
+  - `lib/ai/gemini-policy.js` is the single source of truth for model routing
+  - Never use `gemini-1.5-flash` (legacy, retired)
+- AI Model env var overrides (no code change required):
+  - `PARTS_BOM_SEARCH_MODEL` — BOM search model (`lib/tools/parts/gemini.js`)
+  - `PARTS_SCHEMATIC_SEARCH_MODEL` — schematic search model (`lib/tools/parts/gemini.js`)
+  - `DIAGNOSIS_EVIDENCE_MODEL` / `DIAG_LITE_MODEL` — diagnosis evidence model (`lib/tools/parts/diagnosis-evidence.js`)
+  - `DIAGNOSIS_PART_SEARCH_MODEL` — diagnostic part search model (`lib/tools/parts/diagnostic-part-search.js`)
+  - `PRICING_GROUNDED_SEARCH_MODEL` — pricing search model (`lib/tools/parts/pricing/encompass.js`)
