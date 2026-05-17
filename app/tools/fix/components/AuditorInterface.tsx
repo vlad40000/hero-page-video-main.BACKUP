@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import NextImage from 'next/image';
+import Link from 'next/link';
 import { LoadingLogo } from '@/components/LoadingLogo';
 import { ValuationCalculator } from './ValuationCalculator';
 import { DiagnosisResult } from './DiagnosisResult';
@@ -409,10 +410,14 @@ export default function AuditorInterface() {
     return (
         <div className="mx-auto max-w-[720px]">
             <div className="sticky top-0 z-40 -mx-4 mb-5 flex items-center justify-between border-b border-slate-800 bg-slate-950 px-4 py-2.5 text-white sm:rounded-2xl sm:border">
-                <div className="flex items-center gap-2.5">
+                <Link
+                    href="/"
+                    aria-label="Return to Road Runner Appliance home"
+                    className="flex items-center gap-2.5 rounded-lg transition hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                >
                     <NextImage src="/road-runner-logo.png" alt="" width={32} height={32} className="h-8 w-8 object-contain" />
                     <span className="text-sm font-bold">Road Runner Appliance</span>
-                </div>
+                </Link>
                 <a
                     href={SHOP_PHONE_HREF}
                     className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-emerald-700"

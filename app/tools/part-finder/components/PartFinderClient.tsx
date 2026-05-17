@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { ChangeEvent, FormEvent, useMemo, useRef, useState, useTransition } from "react";
 import {
   AlertCircle,
@@ -241,7 +242,11 @@ function ContinueBtn({ onClick, disabled, loading, label = "Continue" }: {
 function ToolHeader() {
   return (
     <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-3">
+      <Link
+        href="/"
+        aria-label="Return to Road Runner Appliance home"
+        className="flex items-center gap-3 rounded-xl transition hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+      >
         <div className="relative h-14 w-20 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
           <Image src="/images/roadrunner-running.png" alt="Road Runner Appliance" fill sizes="80px" className="object-contain p-1" priority />
         </div>
@@ -249,7 +254,7 @@ function ToolHeader() {
           <p className="text-sm font-extrabold uppercase tracking-[0.18em] text-blue-700">Road Runner Appliance</p>
           <h1 className="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">Parts Lookup</h1>
         </div>
-      </div>
+      </Link>
       <a
         href={SHOP_PHONE_HREF}
         onClick={() => track("tool_part_finder_header_call")}
