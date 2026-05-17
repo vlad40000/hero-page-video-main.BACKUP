@@ -28,6 +28,14 @@ export function HeroSection() {
 
         <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-sm font-extrabold sm:text-base">
           <a
+            href="/tools/appliance-match"
+            className="group inline-flex items-center gap-1.5 text-[#ffc400] underline decoration-[#ffc400]/45 decoration-2 underline-offset-8 transition hover:text-white hover:decoration-white"
+          >
+            <span>Find Your Match</span>
+            <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" strokeWidth={2.8} />
+          </a>
+
+          <a
             href="/tools/fix"
             className="group inline-flex items-center gap-1.5 text-white underline decoration-white/35 decoration-2 underline-offset-8 transition hover:text-[#ffc400] hover:decoration-[#ffc400]"
           >

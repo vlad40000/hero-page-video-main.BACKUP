@@ -4,6 +4,7 @@ import {
   Calculator,
   ClipboardList,
   PackageSearch,
+  Sparkles,
   Zap,
   Lock,
   ExternalLink,
@@ -24,6 +25,14 @@ export const metadata: Metadata = {
 };
 
 const residentTools = [
+  {
+    icon: Sparkles,
+    title: "Appliance Match",
+    description: "Answer three quick questions and get matched against current Road Runner machine inventory using live listed prices.",
+    category: "Shopping",
+    comingSoon: false,
+    href: "/tools/appliance-match",
+  },
   {
     icon: ScanSearch,
     title: "Fix It or Ditch It?",
