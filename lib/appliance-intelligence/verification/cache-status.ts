@@ -1,7 +1,10 @@
 import type { BOMProviderEvidence } from "../tools/schemas";
+import { evaluateBomPayloadCompleteness } from "./completeness";
 
 export type DurableCacheStatus =
   | "parts_partial"
+  | "parts_complete_pricing_missing"
+  | "parts_complete_pricing_partial"
   | "bom_complete"
   | "no_result"
   | "failed"
@@ -36,9 +39,56 @@ function hasValidEvidence(payload: any): boolean {
 
 export function normalizeCacheStatus(payload: unknown): NormalizeCacheStatusResult {
   const raw = payload as any;
-  const status = String(raw?.status ?? "").toLowerCase().trim();
+  const status = String(raw?.retrievalState ?? raw?.retrieval_state ?? raw?.status ?? "").toLowerCase().trim();
   const parts = Array.isArray(raw?.parts) ? raw.parts : [];
   const sectionCount = Number(raw?.completeness?.sectionCount ?? 0);
+  const gate = evaluateBomPayloadCompleteness(raw);
+
+  if (parts.length === 0) {
+    if (status === "failed" || gate.retrievalState === "failed") {
+      return {
+        durableStatus: "failed",
+        cacheEligibleStatus: false,
+        reason: "blocked:failed_empty_parts",
+      };
+    }
+
+    return {
+      durableStatus: "no_result",
+      cacheEligibleStatus: false,
+      reason: "blocked:empty_parts",
+    };
+  }
+
+  switch (gate.retrievalState) {
+    case "bom_complete":
+      return {
+        durableStatus: "bom_complete",
+        cacheEligibleStatus: true,
+        reason: "gate:bom_complete",
+      };
+
+    case "parts_complete_pricing_partial":
+      return {
+        durableStatus: "parts_complete_pricing_partial",
+        cacheEligibleStatus: true,
+        reason: "gate:parts_complete_pricing_partial",
+      };
+
+    case "parts_complete_pricing_missing":
+      return {
+        durableStatus: "parts_complete_pricing_missing",
+        cacheEligibleStatus: true,
+        reason: "gate:parts_complete_pricing_missing",
+      };
+
+    case "parts_partial":
+      return {
+        durableStatus: "parts_partial",
+        cacheEligibleStatus: true,
+        reason: "gate:parts_partial",
+      };
+  }
 
   switch (status) {
     case "bom_complete":
@@ -46,6 +96,20 @@ export function normalizeCacheStatus(payload: unknown): NormalizeCacheStatusResu
         durableStatus: "bom_complete",
         cacheEligibleStatus: true,
         reason: "passthrough:bom_complete",
+      };
+
+    case "parts_complete_pricing_missing":
+      return {
+        durableStatus: "parts_complete_pricing_missing",
+        cacheEligibleStatus: true,
+        reason: "passthrough:parts_complete_pricing_missing",
+      };
+
+    case "parts_complete_pricing_partial":
+      return {
+        durableStatus: "parts_complete_pricing_partial",
+        cacheEligibleStatus: true,
+        reason: "passthrough:parts_complete_pricing_partial",
       };
 
     case "parts_partial":
@@ -65,9 +129,9 @@ export function normalizeCacheStatus(payload: unknown): NormalizeCacheStatusResu
         };
       }
       return {
-        durableStatus: "bom_complete",
+        durableStatus: "parts_complete_pricing_missing",
         cacheEligibleStatus: true,
-        reason: `promoted:${status}:valid_evidence`,
+        reason: `mapped:${status}:parts_complete_pricing_unknown`,
       };
 
     case "partial":
