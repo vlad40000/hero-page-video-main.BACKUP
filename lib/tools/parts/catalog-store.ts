@@ -41,7 +41,7 @@ export type CatalogFilters = {
   q?: string;
   status?: string;
   category?: string;
-  limit?: number;
+  limit?: number | "all";
 };
 
 const IMAGE_KEYS = new Set([
@@ -236,7 +236,7 @@ export async function getCatalogParts(filters: CatalogFilters = {}): Promise<Cat
   const q = asText(filters.q);
   const category = asText(filters.category);
   const status = asText(filters.status || "all") || "all";
-  const limit = Math.min(Math.max(Number(filters.limit || 60), 1), 120);
+  const limit = filters.limit === "all" ? 2147483647 : Math.min(Math.max(Number(filters.limit || 60), 1), 120);
   const qLike = `%${q}%`;
 
   try {
@@ -293,6 +293,37 @@ export async function getCatalogParts(filters: CatalogFilters = {}): Promise<Cat
   } catch (error) {
     console.error("getCatalogParts error", error);
     return [];
+  }
+}
+
+export async function getCatalogPartCount(filters: Omit<CatalogFilters, "limit"> = {}): Promise<number> {
+  const q = asText(filters.q);
+  const category = asText(filters.category);
+  const status = asText(filters.status || "all") || "all";
+  const qLike = `%${q}%`;
+
+  try {
+    const rows = await sql`
+      WITH registry AS (
+        SELECT to_jsonb(part_number_registry) AS row_json
+        FROM part_number_registry
+      )
+      SELECT COUNT(*)::integer AS count
+      FROM registry
+      WHERE
+        (${q} = '' OR row_json->>'canonical_part_number' ILIKE ${qLike} OR row_json->>'raw_part_number' ILIKE ${qLike} OR row_json->>'canonical_part_name' ILIKE ${qLike})
+        AND (${category} = '' OR row_json->>'normalized_category' = ${category})
+        AND (
+          ${status} = 'all'
+          OR (${status} = 'published' AND ((CASE WHEN row_json ? 'published' THEN (row_json->>'published')::boolean ELSE false END) = true OR row_json->>'effective_publish_status' = 'public'))
+          OR (${status} = 'draft' AND (CASE WHEN row_json ? 'published' THEN (row_json->>'published')::boolean ELSE false END) = false AND COALESCE(row_json->>'effective_publish_status', 'draft') <> 'public')
+        );
+    `;
+
+    return Number((rows[0] as Record<string, unknown> | undefined)?.count || 0);
+  } catch (error) {
+    console.error("getCatalogPartCount error", error);
+    return 0;
   }
 }
 
