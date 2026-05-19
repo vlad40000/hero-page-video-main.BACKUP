@@ -83,7 +83,7 @@ export function CatalogSyncControls({
   }
 
   const countLabel = showingAll
-    ? `${loadedCount.toLocaleString()} DB parts loaded`
+    ? `${totalCount.toLocaleString()} DB parts available`
     : `${loadedCount.toLocaleString()} shown of ${totalCount.toLocaleString()} DB parts`;
 
   return (

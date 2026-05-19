@@ -13,11 +13,9 @@ import {
   type CatalogPart,
   getCatalogCategories,
   getCatalogPart,
-  getCatalogPartCount,
   getCatalogParts,
 } from "@/lib/tools/parts/catalog-store";
 import { PartImageGallery } from "@/components/parts-catalog/PartImageGallery";
-import { CatalogSyncControls } from "@/components/parts-catalog/CatalogSyncControls";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -34,15 +32,6 @@ type PartsCatalogDetailPageProps = {
 function paramValue(searchParams: SearchParams | undefined, key: string): string {
   const value = searchParams?.[key];
   return Array.isArray(value) ? value[0] || "" : value || "";
-}
-
-function catalogHref(basePath: string, params: Record<string, string>) {
-  const query = new URLSearchParams();
-  for (const [key, value] of Object.entries(params)) {
-    if (value) query.set(key, value);
-  }
-  const queryString = query.toString();
-  return queryString ? `${basePath}?${queryString}` : basePath;
 }
 
 function moneyFromCents(cents: number | null, fallback = "Request quote"): string {
@@ -143,17 +132,10 @@ export async function PartsCatalogGridPage({ searchParams, basePath, detailBaseP
   const status = paramValue(searchParams, "status") || "all";
   const category = paramValue(searchParams, "category");
   const showingAll = paramValue(searchParams, "limit") === "all";
-  const [parts, categories, totalCount] = await Promise.all([
+  const [parts, categories] = await Promise.all([
     getCatalogParts({ q, status, category, limit: showingAll ? "all" : 96 }),
     getCatalogCategories(),
-    getCatalogPartCount({ q, status, category }),
   ]);
-  const readAllHref = catalogHref(basePath, {
-    q,
-    status: status === "all" ? "" : status,
-    category,
-    limit: "all",
-  });
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -186,13 +168,6 @@ export async function PartsCatalogGridPage({ searchParams, basePath, detailBaseP
       </header>
 
       <main className="mx-auto max-w-[1280px] px-5 py-10">
-        <CatalogSyncControls
-          readAllHref={readAllHref}
-          showingAll={showingAll}
-          loadedCount={parts.length}
-          totalCount={totalCount}
-        />
-
         <form action={basePath} className="mb-8 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-[1fr_220px_180px_auto]">
           <label className="relative block">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
