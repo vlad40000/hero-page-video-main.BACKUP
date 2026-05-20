@@ -3,6 +3,7 @@ import React from 'react';
 import {
     LayoutDashboard,
     Package,
+    PackageSearch,
     Zap,
     Copy,
     Plus,
@@ -35,6 +36,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     const navItems = [
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
         { id: 'inventory', label: 'Inventory', icon: Package },
+        { id: 'partsCatalog', label: 'Parts Catalog', icon: PackageSearch },
         { id: 'generator', label: 'AI Generator', icon: Zap },
         { id: 'sidecar', label: 'Sidecar', icon: Copy },
     ];

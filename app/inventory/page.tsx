@@ -3,6 +3,7 @@
 import React from 'react';
 import Dashboard from './_components/Dashboard';
 import InventoryTable from './_components/InventoryTable';
+import PartsCatalogInventory from './_components/PartsCatalogInventory';
 import BulkGenerator from './_components/BulkGenerator';
 import SidecarView from './_components/SidecarView';
 import { useInventoryContext } from './layout';
@@ -44,6 +45,8 @@ export default function SellerDashboardPage() {
                     />
                 </div>
             );
+        case 'partsCatalog':
+            return <PartsCatalogInventory />;
         case 'generator':
             return <BulkGenerator availableItems={items} onGenerated={bulkUpdateItems} />;
         case 'sidecar':

@@ -7,6 +7,7 @@ export type CatalogPart = {
   canonicalPartNumber: string;
   rawPartNumber: string;
   canonicalPartName: string;
+  description: string | null;
   normalizedCategory: string | null;
   normalizedSection: string | null;
   observedModels: string[];
@@ -198,6 +199,7 @@ function normalizeCatalogPart(row: Record<string, unknown>): CatalogPart {
     canonicalPartNumber: asText(row.canonical_part_number),
     rawPartNumber: asText(row.raw_part_number),
     canonicalPartName: asText(row.canonical_part_name) || "Appliance part",
+    description: asNullableText(row.description),
     normalizedCategory: asNullableText(row.normalized_category),
     normalizedSection: asNullableText(row.normalized_section),
     observedModels: asStringArray(row.observed_models),
@@ -249,6 +251,7 @@ export async function getCatalogParts(filters: CatalogFilters = {}): Promise<Cat
         row_json->>'canonical_part_number' AS canonical_part_number,
         row_json->>'raw_part_number' AS raw_part_number,
         row_json->>'canonical_part_name' AS canonical_part_name,
+        row_json->>'description' AS description,
         row_json->>'normalized_category' AS normalized_category,
         row_json->>'normalized_section' AS normalized_section,
         row_json->'observed_models' AS observed_models,
@@ -276,7 +279,7 @@ export async function getCatalogParts(filters: CatalogFilters = {}): Promise<Cat
         row_json->>'updated_at' AS updated_at
       FROM registry
       WHERE
-        (${q} = '' OR row_json->>'canonical_part_number' ILIKE ${qLike} OR row_json->>'raw_part_number' ILIKE ${qLike} OR row_json->>'canonical_part_name' ILIKE ${qLike})
+        (${q} = '' OR row_json->>'canonical_part_number' ILIKE ${qLike} OR row_json->>'raw_part_number' ILIKE ${qLike} OR row_json->>'canonical_part_name' ILIKE ${qLike} OR row_json->>'description' ILIKE ${qLike})
         AND (${category} = '' OR row_json->>'normalized_category' = ${category})
         AND (
           ${status} = 'all'
@@ -311,7 +314,7 @@ export async function getCatalogPartCount(filters: Omit<CatalogFilters, "limit">
       SELECT COUNT(*)::integer AS count
       FROM registry
       WHERE
-        (${q} = '' OR row_json->>'canonical_part_number' ILIKE ${qLike} OR row_json->>'raw_part_number' ILIKE ${qLike} OR row_json->>'canonical_part_name' ILIKE ${qLike})
+        (${q} = '' OR row_json->>'canonical_part_number' ILIKE ${qLike} OR row_json->>'raw_part_number' ILIKE ${qLike} OR row_json->>'canonical_part_name' ILIKE ${qLike} OR row_json->>'description' ILIKE ${qLike})
         AND (${category} = '' OR row_json->>'normalized_category' = ${category})
         AND (
           ${status} = 'all'
@@ -361,6 +364,7 @@ export async function getCatalogPart(partNumber: string): Promise<CatalogPart | 
         row_json->>'canonical_part_number' AS canonical_part_number,
         row_json->>'raw_part_number' AS raw_part_number,
         row_json->>'canonical_part_name' AS canonical_part_name,
+        row_json->>'description' AS description,
         row_json->>'normalized_category' AS normalized_category,
         row_json->>'normalized_section' AS normalized_section,
         row_json->'observed_models' AS observed_models,
@@ -396,5 +400,39 @@ export async function getCatalogPart(partNumber: string): Promise<CatalogPart | 
   } catch (error) {
     console.error("getCatalogPart error", error);
     return null;
+  }
+}
+
+export async function updateCatalogPartDescription(
+  partNumber: string,
+  description: string | null,
+): Promise<CatalogPart | null> {
+  const canonicalPartNumber = normalizePartNumber(partNumber);
+  if (!canonicalPartNumber) return null;
+
+  const cleanDescription = asNullableText(description);
+  const boundedDescription =
+    cleanDescription && cleanDescription.length > 5000
+      ? cleanDescription.slice(0, 5000)
+      : cleanDescription;
+
+  try {
+    await sql`
+      ALTER TABLE part_number_registry
+      ADD COLUMN IF NOT EXISTS description text;
+    `;
+
+    const rows = await sql`
+      UPDATE part_number_registry
+      SET description = ${boundedDescription}, updated_at = now()
+      WHERE canonical_part_number = ${canonicalPartNumber}
+      RETURNING canonical_part_number;
+    `;
+
+    if (!rows.length) return null;
+    return getCatalogPart(canonicalPartNumber);
+  } catch (error) {
+    console.error("updateCatalogPartDescription error", error);
+    throw error;
   }
 }

@@ -210,6 +210,7 @@ export const partNumberRegistry = pgTable(
     canonicalPartNumber: text("canonical_part_number").primaryKey(),
     rawPartNumber: text("raw_part_number").notNull(),
     canonicalPartName: text("canonical_part_name"),
+    description: text("description"),
     normalizedCategory: text("normalized_category"),
     normalizedSection: text("normalized_section"),
     observedModels: jsonb("observed_models").$type<string[]>().default([]).notNull(),

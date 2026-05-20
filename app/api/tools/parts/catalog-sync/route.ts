@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   getCatalogPartCount,
   getCatalogParts,
+  updateCatalogPartDescription,
   type CatalogFilters,
 } from "@/lib/tools/parts/catalog-store";
 import { importCatalogSpreadsheet } from "@/lib/tools/parts/catalog-spreadsheet-import";
@@ -118,6 +119,53 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         error: error instanceof Error ? error.message : "Failed to import the parts spreadsheet.",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const partNumber = typeof body?.partNumber === "string" ? body.partNumber : "";
+    const description =
+      typeof body?.description === "string" && body.description.trim()
+        ? body.description
+        : null;
+
+    if (!partNumber.trim()) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "partNumber is required.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const part = await updateCatalogPartDescription(partNumber, description);
+
+    if (!part) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Part catalog entry not found.",
+        },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      part,
+    });
+  } catch (error) {
+    console.error("catalog description update error", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to update the catalog description.",
       },
       { status: 500 }
     );

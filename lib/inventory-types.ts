@@ -48,4 +48,4 @@ export interface InventoryStats {
     totalValue: number;
 }
 
-export type AppView = 'dashboard' | 'inventory' | 'generator' | 'sidecar';
+export type AppView = 'dashboard' | 'inventory' | 'partsCatalog' | 'generator' | 'sidecar';

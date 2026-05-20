@@ -235,6 +235,8 @@ export async function PartsCatalogGridPage({ searchParams, basePath, detailBaseP
 }
 
 function detailDescription(part: CatalogPart): string {
+  if (part.description) return part.description;
+
   const name = compactPartTitle(part);
   const modelText = part.observedModels.length
     ? ` It has been observed on model catalog searches including ${part.observedModels.slice(0, 5).join(", ")}.`
