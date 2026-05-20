@@ -66,7 +66,7 @@ function toSliderItem(item: InventoryItem): HomeInventorySliderItem {
 
 export async function HomeInventorySliderSection() {
   const shopInventory = await getShopInventory();
-  const sliderItems = shopInventory.slice(0, 8).map(toSliderItem);
+  const sliderItems = shopInventory.map(toSliderItem);
 
   if (sliderItems.length === 0) {
     return null;
