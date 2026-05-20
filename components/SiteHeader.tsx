@@ -27,12 +27,7 @@ export const SiteHeader = () => {
         <>
             <header className="sticky top-0 z-50 bg-white border-b border-slate-100 shadow-sm font-sans">
 
-                {/* 1. DESKTOP UTILITY BAR */}
-                <div className="hidden h-4 items-center justify-between bg-slate-950 px-5 text-[9px] font-bold uppercase tracking-[0.22em] text-slate-500 md:flex">
-                    <span className="text-slate-500">Commercial Supply & Logistics</span>
-                </div>
-
-                {/* 2. MAIN NAVIGATION BAR */}
+                {/* MAIN NAVIGATION BAR */}
                 <div className="flex h-16 items-center justify-between gap-3 px-3 md:gap-6 md:px-6">
 
                     {/* LOGO & DIRECTIONS */}
