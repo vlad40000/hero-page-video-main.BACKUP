@@ -140,7 +140,7 @@ export function HomeInventorySlider({ items }: HomeInventorySliderProps) {
       ) : null}
 
       <div className="grid gap-0 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
-        <div className="relative min-h-[420px] bg-slate-100 sm:min-h-[500px] md:min-h-[540px] lg:min-h-[420px]">
+        <div className="relative h-[420px] overflow-hidden bg-slate-100 sm:h-[500px] md:h-[540px] lg:h-[420px]">
           <Link href={activeItem.href} className="absolute inset-0 flex items-center justify-center p-2 sm:p-4 md:p-6 lg:p-10">
             <img
               ref={activeImageRef}
@@ -158,7 +158,7 @@ export function HomeInventorySlider({ items }: HomeInventorySliderProps) {
               <button
                 type="button"
                 onClick={() => goTo(activeIndex - 1)}
-                className="absolute left-4 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-slate-950/60 text-white shadow-lg transition hover:bg-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                className="absolute left-4 top-[210px] inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-slate-950/60 text-white shadow-lg transition hover:bg-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:top-[250px] md:top-[270px] lg:top-[210px]"
                 aria-label="Previous appliance"
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -166,7 +166,7 @@ export function HomeInventorySlider({ items }: HomeInventorySliderProps) {
               <button
                 type="button"
                 onClick={() => goTo(activeIndex + 1)}
-                className="absolute right-4 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-slate-950/60 text-white shadow-lg transition hover:bg-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                className="absolute right-4 top-[210px] inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-slate-950/60 text-white shadow-lg transition hover:bg-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:top-[250px] md:top-[270px] lg:top-[210px]"
                 aria-label="Next appliance"
               >
                 <ChevronRight className="h-5 w-5" />
