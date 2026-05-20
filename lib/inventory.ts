@@ -1,4 +1,9 @@
 import { parseCSV } from "./csv-parser";
+import { eq } from "drizzle-orm";
+import { unstable_noStore as noStore } from "next/cache";
+import { db } from "./db";
+import { inventory as inventoryTable } from "./db/schema";
+import { normalizeImages, enforceBase64Limit, MAX_DECODED_BYTES_SSR } from "./image-safety";
 
 export interface InventoryItem {
     id: string;
@@ -59,12 +64,21 @@ export function isFrontendVisibleInventoryStatus(status: InventoryItem["status"]
     return status === "available" || status === "listed" || status === "pending" || status === "sold";
 }
 
-import { db } from "./db";
-import { inventory as inventoryTable } from "./db/schema";
-import { eq } from "drizzle-orm";
+export const SHOP_INVENTORY_CATEGORIES: InventoryItem["category"][] = [
+    "refrigerators",
+    "washers",
+    "dryers",
+    "stoves-ovens",
+    "packages",
+];
 
-import { unstable_noStore as noStore } from "next/cache";
-import { normalizeImages, enforceBase64Limit, MAX_DECODED_BYTES_SSR } from "./image-safety";
+export function isShopAvailableInventoryStatus(status: InventoryItem["status"] | string | null | undefined) {
+    return status === "available" || status === "listed";
+}
+
+export function isShopInventoryItem(item: InventoryItem) {
+    return SHOP_INVENTORY_CATEGORIES.includes(item.category) && isShopAvailableInventoryStatus(item.status);
+}
 
 export async function getInventory(): Promise<InventoryItem[]> {
     noStore();
@@ -127,6 +141,11 @@ export async function getInventory(): Promise<InventoryItem[]> {
         console.error("Error fetching inventory from database:", error);
         return FALLBACK_INVENTORY;
     }
+}
+
+export async function getShopInventory(): Promise<InventoryItem[]> {
+    const inventory = await getInventory();
+    return inventory.filter(isShopInventoryItem);
 }
 
 export async function getInventoryBySlug(slug: string): Promise<InventoryItem | undefined> {
@@ -192,7 +211,7 @@ export async function getInventoryBySlug(slug: string): Promise<InventoryItem | 
 export async function getInventoryByCategory(category: InventoryItem['category']): Promise<InventoryItem[]> {
     noStore();
     if (!process.env.DATABASE_URL || process.env.NEXT_PHASE === 'phase-production-build') {
-        return FALLBACK_INVENTORY.filter((item) => item.category === category && isFrontendVisibleInventoryStatus(item.status));
+        return FALLBACK_INVENTORY.filter((item) => item.category === category && isShopAvailableInventoryStatus(item.status));
     }
 
     try {
@@ -214,13 +233,13 @@ export async function getInventoryByCategory(category: InventoryItem['category']
         }).from(inventoryTable).where(eq(inventoryTable.category, category));
 
         if (data.length === 0) {
-            return FALLBACK_INVENTORY.filter((item) => item.category === category && isFrontendVisibleInventoryStatus(item.status));
+            return FALLBACK_INVENTORY.filter((item) => item.category === category && isShopAvailableInventoryStatus(item.status));
         }
 
         const publishableData = data.filter((item) => normalizePublishablePrice(item.price) !== null);
 
         if (publishableData.length === 0) {
-            return FALLBACK_INVENTORY.filter((item) => item.category === category && isFrontendVisibleInventoryStatus(item.status));
+            return FALLBACK_INVENTORY.filter((item) => item.category === category && isShopAvailableInventoryStatus(item.status));
         }
 
         return publishableData.map((item) => ({
@@ -242,9 +261,9 @@ export async function getInventoryByCategory(category: InventoryItem['category']
             seo_title: item.seo_title || `${item.brand} ${item.model}`,
             seo_description: '',
             location: item.location || 'Hemingway, SC'
-        })).filter((item) => isFrontendVisibleInventoryStatus(item.status));
+        })).filter((item) => isShopAvailableInventoryStatus(item.status));
     } catch (error) {
         console.error(`Error fetching products by category (${category}):`, error);
-        return FALLBACK_INVENTORY.filter((item) => item.category === category && isFrontendVisibleInventoryStatus(item.status));
+        return FALLBACK_INVENTORY.filter((item) => item.category === category && isShopAvailableInventoryStatus(item.status));
     }
 }

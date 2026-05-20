@@ -1,6 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
 import { Metadata } from 'next';
+import { ProductCard } from '@/components/product-card';
+import { getShopInventory } from '@/lib/inventory';
+import { formatUsd } from '@/lib/money';
+import { productPath } from '@/lib/routes';
 
 type ApplianceIconVariant = 'refrigerator' | 'washer' | 'dryer' | 'range' | 'laundry-set';
 
@@ -11,6 +15,8 @@ export const metadata: Metadata = {
         canonical: '/shop',
     },
 };
+
+export const dynamic = 'force-dynamic';
 
 const categories: Array<{
     name: string;
@@ -50,7 +56,9 @@ const categories: Array<{
     },
 ];
 
-export default function ShopPage() {
+export default async function ShopPage() {
+    const inventory = await getShopInventory();
+
     return (
         <div className="min-h-screen bg-slate-50 font-sans">
             {/* Hero Section */}
@@ -84,6 +92,42 @@ export default function ShopPage() {
                         </Link>
                     ))}
                 </div>
+
+                <section className="mt-16">
+                    <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <p className="text-xs font-extrabold uppercase tracking-wide text-blue-700">Available now</p>
+                            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Current shop inventory</h2>
+                        </div>
+                        <a href="tel:843-536-6005" className="text-sm font-extrabold text-blue-700 hover:text-blue-800">
+                            Call to confirm availability
+                        </a>
+                    </div>
+
+                    {inventory.length > 0 ? (
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            {inventory.map((product) => (
+                                <ProductCard
+                                    key={product.id}
+                                    name={product.seo_title}
+                                    description={product.short_description}
+                                    price={formatUsd(product.price)}
+                                    image={product.images[0] || '/placeholder.svg'}
+                                    condition={product.condition}
+                                    status={product.status}
+                                    brand={product.brand}
+                                    href={productPath(product.slug)}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
+                            <p className="text-slate-600">
+                                No appliances are currently listed online. Call us to ask about incoming inventory.
+                            </p>
+                        </div>
+                    )}
+                </section>
 
                 {/* Additional Info */}
                 <div className="mt-16 bg-white rounded-2xl p-8 shadow-lg border border-slate-100">

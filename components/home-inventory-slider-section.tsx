@@ -1,6 +1,6 @@
 import { ArrowRight, Sparkles } from "lucide-react";
 import { HomeInventorySlider, type HomeInventorySliderItem } from "@/components/home-inventory-slider";
-import { getInventory, isFrontendVisibleInventoryStatus, type InventoryItem } from "@/lib/inventory";
+import { getShopInventory, type InventoryItem } from "@/lib/inventory";
 import { formatUsd } from "@/lib/money";
 import { productPath } from "@/lib/routes";
 
@@ -13,8 +13,6 @@ const INVENTORY_CATEGORY_LABELS: Record<InventoryItem["category"], string> = {
   packages: "Washer & Dryer Sets",
 };
 
-const STOVES_CATEGORY: InventoryItem["category"] = "stoves-ovens";
-
 const INVENTORY_IMAGE_FALLBACKS: Record<InventoryItem["category"], string> = {
   refrigerators: "/images/products/refrigerator-french-door.jpg",
   washers: "/images/products/washer-top-load.jpg",
@@ -22,23 +20,6 @@ const INVENTORY_IMAGE_FALLBACKS: Record<InventoryItem["category"], string> = {
   "stoves-ovens": "/images/products/stove-electric.jpg",
   dishwashers: "/placeholder.jpg",
   packages: "/images/products/washer-dryer-set.jpg",
-};
-
-const STOVES_PLACEHOLDER_ITEM: HomeInventorySliderItem = {
-  id: "stoves-ranges-placeholder",
-  title: "Used Stoves & Ranges",
-  href: "/stoves-ranges",
-  image: "/images/products/stove-electric.jpg",
-  fallbackImage: "/images/products/stove-electric.jpg",
-  category: STOVES_CATEGORY,
-  categoryLabel: INVENTORY_CATEGORY_LABELS[STOVES_CATEGORY],
-  price: "Call for price",
-  condition: "Check Availability",
-  status: "available",
-  brand: "Road Runner Appliance",
-  model: "Stoves & Ranges",
-  description:
-    "Gas and electric stoves rotate through inventory. Call or check the stoves section for current availability.",
 };
 
 function getSafePublicImage(input: unknown, fallback: string) {
@@ -83,26 +64,9 @@ function toSliderItem(item: InventoryItem): HomeInventorySliderItem {
   };
 }
 
-function ensureStovesSliderItem(items: HomeInventorySliderItem[], inventory: InventoryItem[]) {
-  if (items.some((item) => item.category === STOVES_CATEGORY)) return items;
-
-  const availableStove = inventory.find((item) => item.category === STOVES_CATEGORY && isFrontendVisibleInventoryStatus(item.status));
-  if (availableStove) {
-    return [...items, toSliderItem(availableStove)];
-  }
-
-  return [...items, STOVES_PLACEHOLDER_ITEM];
-}
-
 export async function HomeInventorySliderSection() {
-  const inventory = await getInventory();
-  const availableInventory = inventory.filter((item) => isFrontendVisibleInventoryStatus(item.status));
-  const sliderItems = ensureStovesSliderItem(
-    availableInventory
-      .slice(0, 8)
-      .map(toSliderItem),
-    availableInventory,
-  );
+  const shopInventory = await getShopInventory();
+  const sliderItems = shopInventory.slice(0, 8).map(toSliderItem);
 
   if (sliderItems.length === 0) {
     return null;
