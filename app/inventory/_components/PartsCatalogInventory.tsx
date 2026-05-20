@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { ExternalLink, PackageSearch, RefreshCw, Save, Search } from 'lucide-react';
+import { ExternalLink, PackageSearch, RefreshCw, Save, Search, Zap } from 'lucide-react';
 import { toast } from 'sonner';
+import { generatePartDescriptionAction } from '@/lib/flood-engine/actions';
 
 type CatalogPartRow = {
     canonicalPartNumber: string;
@@ -15,6 +16,7 @@ type CatalogPartRow = {
     latestPriceCents: number | null;
     priceCurrency: string;
     imageUrl: string | null;
+    brand: string | null;
     updatedAt: string | null;
 };
 
@@ -45,6 +47,7 @@ export default function PartsCatalogInventory() {
     const [query, setQuery] = useState('');
     const [loading, setLoading] = useState(true);
     const [savingPartNumber, setSavingPartNumber] = useState<string | null>(null);
+    const [generatingPartNumber, setGeneratingPartNumber] = useState<string | null>(null);
 
     const loadParts = async () => {
         setLoading(true);
@@ -136,6 +139,43 @@ export default function PartsCatalogInventory() {
         }
     };
 
+    const generateDescription = async (part: CatalogPartRow) => {
+        setGeneratingPartNumber(part.canonicalPartNumber);
+
+        try {
+            const result = await generatePartDescriptionAction({
+                partNumber: part.canonicalPartNumber,
+                partName: part.canonicalPartName,
+                brand: part.brand || undefined,
+                category: part.normalizedCategory || undefined,
+                section: part.normalizedSection || undefined,
+                observedModels: part.observedModels,
+                price: typeof part.latestPriceCents === 'number' ? part.latestPriceCents / 100 : undefined,
+                imageUrl: part.imageUrl,
+                description: drafts[part.canonicalPartNumber] || part.description || undefined,
+            }, 'website');
+
+            if (!result.success) {
+                throw new Error(result.error || 'Could not generate part description.');
+            }
+
+            const generated = result.data.description?.trim();
+            if (!generated || generated.length < 10) {
+                throw new Error('Generated description was too short.');
+            }
+
+            setDrafts((current) => ({
+                ...current,
+                [part.canonicalPartNumber]: generated,
+            }));
+            toast.success('Part description generated. Review and save it.');
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'Could not generate part description.');
+        } finally {
+            setGeneratingPartNumber(null);
+        }
+    };
+
     return (
         <div className="mx-auto max-w-7xl space-y-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -188,6 +228,7 @@ export default function PartsCatalogInventory() {
                         const savedDescription = part.description || '';
                         const hasChanges = draft.trim() !== savedDescription.trim();
                         const isSaving = savingPartNumber === part.canonicalPartNumber;
+                        const isGenerating = generatingPartNumber === part.canonicalPartNumber;
 
                         return (
                             <section
@@ -250,17 +291,28 @@ export default function PartsCatalogInventory() {
 
                                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                         <p className="text-xs text-slate-500">
-                                            Empty descriptions fall back to the generated public part description.
+                                            Generate uses the same Market Flood flow as whole-machine descriptions.
                                         </p>
-                                        <button
-                                            type="button"
-                                            onClick={() => saveDescription(part)}
-                                            disabled={!hasChanges || isSaving}
-                                            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white shadow-md shadow-indigo-200 transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none"
-                                        >
-                                            <Save className="h-4 w-4" />
-                                            {isSaving ? 'Saving...' : 'Save Description'}
-                                        </button>
+                                        <div className="flex flex-col gap-2 sm:flex-row">
+                                            <button
+                                                type="button"
+                                                onClick={() => generateDescription(part)}
+                                                disabled={isGenerating || isSaving}
+                                                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-bold text-indigo-700 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
+                                            >
+                                                <Zap className="h-4 w-4" />
+                                                {isGenerating ? 'Generating...' : 'Generate'}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => saveDescription(part)}
+                                                disabled={!hasChanges || isSaving || isGenerating}
+                                                className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-bold text-white shadow-md shadow-indigo-200 transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none"
+                                            >
+                                                <Save className="h-4 w-4" />
+                                                {isSaving ? 'Saving...' : 'Save Description'}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </section>

@@ -35,6 +35,17 @@ const GenerateDescriptionSchema = z.object({
     condition: z.string(),
     specs: z.any().optional()
 });
+const GeneratePartDescriptionSchema = z.object({
+    partNumber: z.string().min(1, "Part number required"),
+    partName: z.string().optional(),
+    brand: z.string().optional(),
+    category: z.string().optional(),
+    section: z.string().optional(),
+    observedModels: z.array(z.string()).optional(),
+    price: z.number().optional(),
+    imageUrl: z.string().nullable().optional(),
+    description: z.string().optional(),
+});
 const PlacementSchema = z.enum(MARKET_FLOOD_PLACEMENTS as [ListingPlacement, ...ListingPlacement[]]).default('website');
 
 export async function analyzeProductImageAction(imageUrl: string) {
@@ -179,6 +190,49 @@ export async function generateDescriptionAction(
         return {
             success: false as const,
             error: 'Description generation failed. Please try again.',
+            warnings: [],
+            provenance: [],
+        };
+    }
+}
+
+export async function generatePartDescriptionAction(
+    input: z.infer<typeof GeneratePartDescriptionSchema>,
+    placement: ListingPlacement = 'website'
+) {
+    try {
+        const valid = GeneratePartDescriptionSchema.parse(input);
+        const validPlacement = PlacementSchema.parse(placement);
+        const partName = valid.partName || 'Appliance part';
+        const category = valid.category || valid.section || 'appliance parts';
+        const modelContext = valid.observedModels?.length
+            ? `Fits or has been observed in model searches including ${valid.observedModels.slice(0, 8).join(', ')}.`
+            : 'Confirm model fitment before purchase or installation.';
+
+        return await generateMarketFloodDescription({
+            item: {
+                id: valid.partNumber,
+                title: `${valid.partNumber} ${partName}`.trim(),
+                brand: valid.brand || 'Road Runner Appliance',
+                model: valid.partNumber,
+                category,
+                condition: 'good' as MarketplaceListing['condition'],
+                price: valid.price,
+                imageUrl: valid.imageUrl || undefined,
+                description: [
+                    valid.description,
+                    `Part name: ${partName}.`,
+                    valid.section ? `Catalog section: ${valid.section}.` : '',
+                    modelContext,
+                ].filter(Boolean).join(' '),
+            },
+            placement: validPlacement,
+        });
+    } catch (error) {
+        console.error('[AI-ACTION] Part description generation failure:', error);
+        return {
+            success: false as const,
+            error: 'Part description generation failed. Please try again.',
             warnings: [],
             provenance: [],
         };
