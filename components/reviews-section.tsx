@@ -2,6 +2,8 @@ import { Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
+const GOOGLE_REVIEW_URL = "https://www.google.com/search?q=Road+Runner+Appliance+Inc+Reviews";
+
 function GoogleIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
@@ -118,7 +120,7 @@ export function ReviewsSection() {
             className="border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent"
           >
             <a
-              href="https://www.google.com/maps"
+              href={GOOGLE_REVIEW_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2"
