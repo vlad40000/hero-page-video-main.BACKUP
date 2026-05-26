@@ -120,7 +120,7 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({ results, onSel
 
                             <div className="bg-slate-50 rounded-lg p-3 text-xs text-slate-500 space-y-1 border border-slate-100">
                                 <div className="flex justify-between gap-3">
-                                    <span>Part ({result.partName}{result.partNumber ? ` / ${result.partNumber}` : ''}):</span>
+                                    <span>Part ({result.partName}):</span>
                                     <span className="font-medium">${result.partPrice.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between gap-3">

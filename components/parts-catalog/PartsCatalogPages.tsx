@@ -71,6 +71,21 @@ function listingTitle(part: CatalogPart): string {
     .trim();
 }
 
+// Customer-facing variant — same shape as listingTitle but with the part number
+// scrubbed. Used for visible body copy (<h1>, headings). Backend, URL, JSON-LD,
+// <img alt>, and metadata still use listingTitle() so search and ops are unaffected.
+function listingTitleForDisplay(part: CatalogPart): string {
+  const brand = part.brand || inferBrand(part);
+  const safePartNumberPattern = part.canonicalPartNumber.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const name = compactPartTitle(part).replace(new RegExp(safePartNumberPattern, "i"), "").trim();
+  const category = part.normalizedCategory || part.normalizedSection || "Appliance";
+  return [brand, name, `- ${category} Part`]
+    .filter(Boolean)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function inferBrand(part: CatalogPart): string | null {
   const pn = part.canonicalPartNumber.toUpperCase();
   if (/^(WE|WD|WH|WR|WB|WG|WX|WW)\d/i.test(pn)) return "GE";
@@ -90,11 +105,11 @@ function publicPartLabel(part: CatalogPart): string {
   return titleCase(part.normalizedCategory || part.normalizedSection || "Appliance part");
 }
 
-function PlaceholderImage({ partNumber }: { partNumber: string }) {
+function PlaceholderImage({ label }: { label: string }) {
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-center text-slate-400">
       <PackageSearch className="h-12 w-12" />
-      <span className="font-mono text-sm font-black tracking-widest">{partNumber}</span>
+      <span className="text-sm font-semibold uppercase tracking-widest">{label}</span>
     </div>
   );
 }
@@ -185,7 +200,7 @@ export async function PartsCatalogGridPage({ searchParams, basePath, detailBaseP
                         className="max-h-full max-w-full object-contain drop-shadow-lg transition-transform duration-300 group-hover:scale-105"
                       />
                     ) : (
-                      <PlaceholderImage partNumber={part.canonicalPartNumber} />
+                      <PlaceholderImage label={publicPartLabel(part)} />
                     )}
                     <span className="absolute right-3 top-3 rounded-md bg-[#162033] px-2 py-0.5 text-[10px] font-bold text-white">
                       #{index + 1}
@@ -193,10 +208,10 @@ export async function PartsCatalogGridPage({ searchParams, basePath, detailBaseP
                   </div>
                   <div className="flex flex-1 flex-col p-5">
                     <div className="mb-1 text-2xl font-black text-[#162033]">
-                      {part.canonicalPartNumber}
+                      {compactPartTitle(part)}
                     </div>
                     <div className="mb-4 min-h-10 text-sm leading-relaxed text-slate-500">
-                      {compactPartTitle(part)}
+                      {publicPartLabel(part)}
                     </div>
                     <div className="mt-auto flex items-center justify-between gap-3">
                       <span className="max-w-[65%] truncate rounded-lg border border-slate-200 bg-white px-3 py-1 text-[10px] font-extrabold uppercase tracking-wide text-slate-600">
@@ -239,15 +254,14 @@ function detailDescription(part: CatalogPart): string {
 
   const name = compactPartTitle(part);
   const modelText = part.observedModels.length
-    ? ` It has been observed on model catalog searches including ${part.observedModels.slice(0, 5).join(", ")}.`
+    ? ` Observed on model catalog searches including ${part.observedModels.slice(0, 5).join(", ")}.`
     : "";
-  return `${part.canonicalPartNumber} is cataloged as ${name}.${modelText} Confirm model fitment before purchase or installation.`;
+  return `${name} cataloged for service.${modelText} Confirm model fitment before purchase or installation.`;
 }
 
 function specifics(part: CatalogPart) {
   return [
     ["Brand", part.brand || inferBrand(part) || "-"],
-    ["MPN", part.canonicalPartNumber],
     ["Type", titleCase(part.canonicalPartName) || "-"],
     ["Color", "-"],
     ["Material", "-"],
@@ -262,6 +276,7 @@ export async function PartsCatalogDetailPage({ partNumber }: PartsCatalogDetailP
   if (!part) notFound();
 
   const title = listingTitle(part);
+  const displayTitle = listingTitleForDisplay(part);
   const specRows = specifics(part);
 
   return (
@@ -272,7 +287,7 @@ export async function PartsCatalogDetailPage({ partNumber }: PartsCatalogDetailP
 
           <aside className="flex flex-col gap-5">
             <div>
-              <h1 className="text-2xl font-bold leading-tight text-[#191919]">{title}</h1>
+              <h1 className="text-2xl font-bold leading-tight text-[#191919]">{displayTitle}</h1>
             </div>
 
             <div className="flex items-center gap-2 text-sm">
@@ -328,12 +343,6 @@ export async function PartsCatalogDetailPage({ partNumber }: PartsCatalogDetailP
               </div>
               <div className="mt-1 text-xs text-slate-500">Estimated delivery: 3-7 business days</div>
               <div className="mt-2 text-xs text-slate-500">30 day returns - buyer pays return shipping</div>
-            </div>
-
-            <div className="flex flex-col gap-2 text-xs text-slate-500">
-              <div>
-                Part #: <span className="font-mono font-medium text-slate-700">{part.canonicalPartNumber}</span>
-              </div>
             </div>
           </aside>
         </section>

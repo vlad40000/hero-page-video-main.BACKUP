@@ -888,7 +888,6 @@ export default function PartFinderClient() {
                       <thead className="bg-slate-50">
                         <tr>
                           <th className="px-4 py-3 text-left font-semibold text-slate-600">Part</th>
-                          <th className="px-4 py-3 text-left font-semibold text-slate-600">Part #</th>
                           <th className="px-4 py-3 text-left font-semibold text-slate-600">Price</th>
                           <th className="px-4 py-3 text-right font-semibold text-slate-600">Order</th>
                         </tr>
@@ -897,7 +896,6 @@ export default function PartFinderClient() {
                         {displayedParts.map((part, i) => (
                           <tr key={`${part.canonicalPartNumber}-${i}`}>
                             <td className="px-4 py-3 text-slate-800">{part.canonicalPartName || "Part"}</td>
-                            <td className="px-4 py-3 font-mono text-slate-700">{part.canonicalPartNumber}</td>
                             <td className="px-4 py-3 text-slate-600">
                               {formatPrice(part.retailPrice) || "Call"}
                               {part.retailAvailability && <div className="text-xs text-emerald-600">{part.retailAvailability}</div>}

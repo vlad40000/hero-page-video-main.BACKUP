@@ -64,7 +64,6 @@ export function PartImageGallery({ images, title, partNumber }: PartImageGallery
               <div className="text-sm font-extrabold uppercase tracking-wide text-slate-400">
                 Photo pending
               </div>
-              <div className="font-mono text-xs font-bold text-slate-400">{partNumber}</div>
             </div>
           )}
 
