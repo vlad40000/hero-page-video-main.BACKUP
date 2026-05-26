@@ -11,11 +11,10 @@ interface DiagnosisResultProps {
 export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({ results, onSelect, onBack }) => {
     const callPhoneHref = 'tel:843-536-6005';
 
-    const priceBackedResults = results.filter((result) =>
-        result.partPriceVerified &&
+    const isPriced = (result: DiagnosticResult) =>
+        Boolean(result.partPriceVerified) &&
         Number.isFinite(result.partPrice) &&
-        result.partPrice > 0
-    );
+        result.partPrice > 0;
 
     const calculateTotal = (part: number, labor: number) => {
         const serviceCall = 100;
@@ -33,6 +32,7 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({ results, onSel
         if (status === 'model_part_verified') return 'In stock';
         if (status === 'targeted_part_search_verified') return 'Call to confirm fit';
         if (status === 'price_only_unverified_fitment') return 'Call to confirm';
+        if (status === 'unpriced_pending_quote') return 'Call for parts price';
         return 'Needs verification';
     };
 
@@ -40,10 +40,11 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({ results, onSel
         if (status === 'model_part_verified') return 'bg-emerald-100 text-emerald-700';
         if (status === 'targeted_part_search_verified') return 'bg-blue-100 text-blue-700';
         if (status === 'price_only_unverified_fitment') return 'bg-amber-100 text-amber-700';
+        if (status === 'unpriced_pending_quote') return 'bg-amber-100 text-amber-700';
         return 'bg-slate-100 text-slate-600';
     };
 
-    if (priceBackedResults.length === 0) {
+    if (results.length === 0) {
         return (
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
@@ -56,7 +57,7 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({ results, onSel
                     </button>
                 </div>
                 <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-900">
-                    We could not generate a price-backed repair estimate from the supplier catalogs for this model and symptom. Road Runner can still review the model, serial, and symptom human-to-human before quoting parts or repair.
+                    We could not generate a diagnostic estimate from the supplier catalogs for this model and symptom. Road Runner can still review the model, serial, and symptom human-to-human before quoting parts or repair.
                 </div>
             </div>
         );
@@ -80,18 +81,20 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({ results, onSel
             </p>
 
             <div className="grid gap-4">
-                {priceBackedResults.map((result, index) => {
-                    const totalCost = calculateTotal(result.partPrice, result.laborHours);
+                {results.map((result, index) => {
+                    const priced = isPriced(result);
+                    const totalCost = priced ? calculateTotal(result.partPrice, result.laborHours) : 0;
+                    const handleClick = () => { if (priced) onSelect(totalCost); };
 
                     return (
                         <div
                             key={index}
-                            className="border border-slate-200 rounded-xl p-5 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer bg-white group"
-                            onClick={() => onSelect(totalCost)}
+                            className={`border border-slate-200 rounded-xl p-5 transition-all bg-white group ${priced ? 'hover:border-blue-400 hover:shadow-md cursor-pointer' : ''}`}
+                            onClick={handleClick}
                         >
                             <div className="flex justify-between items-start mb-3">
                                 <div>
-                                    <h4 className="font-bold text-lg text-slate-800 group-hover:text-blue-600 transition-colors">
+                                    <h4 className={`font-bold text-lg text-slate-800 transition-colors ${priced ? 'group-hover:text-blue-600' : ''}`}>
                                         {result.issue}
                                     </h4>
                                     <div className="flex items-center gap-2 mt-1">
@@ -107,10 +110,19 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({ results, onSel
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-2xl font-black text-slate-800">
-                                        ${totalCost.toFixed(2)}
-                                    </div>
-                                    <div className="text-xs text-slate-400 font-medium">Est. Total Repair</div>
+                                    {priced ? (
+                                        <>
+                                            <div className="text-2xl font-black text-slate-800">
+                                                ${totalCost.toFixed(2)}
+                                            </div>
+                                            <div className="text-xs text-slate-400 font-medium">Est. Total Repair</div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="text-sm font-bold text-slate-700">Call for total</div>
+                                            <div className="text-xs text-slate-400 font-medium">Parts price pending</div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
 
@@ -121,7 +133,9 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({ results, onSel
                             <div className="bg-slate-50 rounded-lg p-3 text-xs text-slate-500 space-y-1 border border-slate-100">
                                 <div className="flex justify-between gap-3">
                                     <span>Part ({result.partName}):</span>
-                                    <span className="font-medium">${result.partPrice.toFixed(2)}</span>
+                                    <span className="font-medium">
+                                        {priced ? `$${result.partPrice.toFixed(2)}` : 'Call for current price'}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between gap-3">
                                     <span>Availability:</span>
