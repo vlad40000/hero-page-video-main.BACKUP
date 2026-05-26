@@ -78,7 +78,24 @@ function priceFromRecord(record: any) {
   const payloadPrice = positivePrice(payload?.retailPrice);
   if (payloadPrice) return payloadPrice;
   const cents = Number(record?.latestPriceCents);
-  return Number.isFinite(cents) && cents > 0 ? Math.round(cents) / 100 : null;
+  if (Number.isFinite(cents) && cents > 0) return Math.round(cents) / 100;
+
+  // Scraper-emitted rows place price inside providerRows[].rawPayload.retailPrice (or .price/.sellPrice).
+  const providerRows: any[] = Array.isArray(record?.providerRows)
+    ? record.providerRows
+    : Array.isArray(record?.provider_rows)
+    ? record.provider_rows
+    : [];
+  for (const row of providerRows) {
+    const rawPayload = row?.rawPayload || row?.raw_payload || {};
+    const nested = rawPayload?.rawPayload || rawPayload?.raw_payload || rawPayload;
+    const scraped = positivePrice(
+      row?.retailPrice ?? row?.retail_price ?? row?.price ??
+      nested?.retailPrice ?? nested?.retail_price ?? nested?.price ?? nested?.sellPrice
+    );
+    if (scraped) return scraped;
+  }
+  return null;
 }
 
 function pricedRecordToPart(record: any, fallback: z.infer<typeof LocalCandidateSchema>, source: string): PublicPart | null {
