@@ -1,0 +1,40 @@
+{
+  "taskId": "task_backup_antigravity_alignment_001",
+  "userGoal": "Align BACKUP repo with Antigravity best practices.",
+  "status": "planned",
+  "plan": [
+    {
+      "step": 1,
+      "name": "Create .agents governance layer",
+      "owner": "coding-specialist",
+      "status": "pending"
+    },
+    {
+      "step": 2,
+      "name": "Add source-of-truth and provider policies",
+      "owner": "coding-specialist",
+      "status": "pending"
+    },
+    {
+      "step": 3,
+      "name": "Verify files and gitignore behavior",
+      "owner": "verifier",
+      "status": "pending"
+    }
+  ],
+  "agentsInvolved": [
+    "supervisor-router",
+    "coding-specialist",
+    "verifier"
+  ],
+  "agentCount": 3,
+  "artifacts": [],
+  "errors": [],
+  "approvalRequired": false,
+  "approvalStatus": "not_required",
+  "verificationStatus": "pending",
+  "finalOutput": null,
+  "nextAction": "Create governance files and update .gitignore.",
+  "createdAt": "",
+  "updatedAt": ""
+}

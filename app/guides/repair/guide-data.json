@@ -1,0 +1,52 @@
+[
+    {
+        "slug": "washer-wont-drain-causes-repair-costs",
+        "title": "Washer Won't Drain: Common Causes & Typical Repair Costs",
+        "description": "Learn why your washing machine stopped draining, how much it usually costs to fix, and when it's better to replace.",
+        "category": "Washer",
+        "symptoms": [
+            "Water left in drum",
+            "Loud humming during drain cycle",
+            "Error codes (OE, 5C, d5)"
+        ],
+        "causes": [
+            {
+                "item": "Clogged Drain Pump",
+                "cost": "$150 - $250"
+            },
+            {
+                "item": "Failed Drain Motor",
+                "cost": "$200 - $350"
+            },
+            {
+                "item": "Blocked Drain Hose",
+                "cost": "$100 - $150"
+            }
+        ]
+    },
+    {
+        "slug": "dryer-not-heating-common-fixes",
+        "title": "Dryer Not Heating: Common Fixes & Cost Analysis",
+        "description": "Examine why your dryer is running but not getting hot. We break down heating element costs and fuse replacements.",
+        "category": "Dryer",
+        "symptoms": [
+            "Drum spins but laundry stays wet",
+            "Dryer takes 3+ cycles to dry",
+            "Burning smell"
+        ],
+        "causes": [
+            {
+                "item": "Blown Thermal Fuse",
+                "cost": "$120 - $180"
+            },
+            {
+                "item": "Burnt Heating Element",
+                "cost": "$200 - $300"
+            },
+            {
+                "item": "Failed Igniter (Gas)",
+                "cost": "$180 - $280"
+            }
+        ]
+    }
+]
