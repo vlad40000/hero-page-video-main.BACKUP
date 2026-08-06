@@ -1,13 +1,8 @@
 import { NextResponse } from "next/server";
 import { getImageProcessingProvider } from "@/lib/image-processing/provider";
 import type { ImageEnhanceRequestBody } from "@/lib/image-processing/types";
-import { requestHasInventorySession } from "@/lib/inventory-session";
 
 export async function POST(request: Request) {
-  if (!(await requestHasInventorySession(request))) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
     const body = (await request.json()) as ImageEnhanceRequestBody;
 

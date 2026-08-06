@@ -1,6 +1,5 @@
 import { put } from '@vercel/blob';
 import { NextResponse } from 'next/server';
-import { requestHasInventorySession } from '@/lib/inventory-session';
 
 /**
  * SECURE CLOUD UPLOAD ENDPOINT
@@ -9,10 +8,6 @@ import { requestHasInventorySession } from '@/lib/inventory-session';
  * It returns a permanent public URL that can be safely stored in the DB.
  */
 export async function POST(request: Request): Promise<NextResponse> {
-    if (!(await requestHasInventorySession(request))) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { searchParams } = new URL(request.url);
     const filename = searchParams.get('filename') || 'image.jpg';
 

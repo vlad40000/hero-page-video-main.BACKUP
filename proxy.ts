@@ -1,9 +1,5 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import {
-  INVENTORY_SESSION_COOKIE,
-  verifyInventorySessionToken,
-} from '@/lib/inventory-session';
 
 const NOINDEX_PREFIXES = [
   '/inventory',
@@ -37,23 +33,7 @@ export async function proxy(request: NextRequest) {
     );
   }
 
-  if (pathname === '/employee') {
-    return addNoIndexHeader(
-      NextResponse.redirect(new URL('/employee/login', request.url)),
-      pathname,
-    );
-  }
-
-  const token = request.cookies.get(INVENTORY_SESSION_COOKIE)?.value;
-  const hasSession = await verifyInventorySessionToken(token);
-
-  if (isPathOrChild(pathname, '/inventory') && !hasSession) {
-    const loginUrl = new URL('/employee/login', request.url);
-    loginUrl.searchParams.set('next', `${pathname}${search}`);
-    return addNoIndexHeader(NextResponse.redirect(loginUrl), pathname);
-  }
-
-  if (pathname === '/employee/login' && hasSession) {
+  if (pathname === '/employee' || pathname === '/employee/login') {
     return addNoIndexHeader(
       NextResponse.redirect(new URL('/inventory', request.url)),
       pathname,

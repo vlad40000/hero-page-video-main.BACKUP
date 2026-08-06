@@ -7,12 +7,11 @@ import InventoryForm from './_components/InventoryForm';
 import ConnectModal from './_components/ConnectModal';
 import { useInventory } from '@/lib/flood-engine/hooks/useInventory';
 import { MarketplaceListing, AppView, ItemStatus } from '@/lib/inventory-types';
-import { Plus, RefreshCw, Database, Search, Menu, LogOut } from 'lucide-react';
+import { Plus, RefreshCw, Database, Search, Menu } from 'lucide-react';
 import { LoadingLogo } from '@/components/LoadingLogo';
 import { getInventoryForEmployee, resetAndSyncFullInventory, syncInventoryToDatabase, logToServer, deleteInventoryFromDatabase } from '@/lib/inventory-actions';
 import { generateSlug } from '@/lib/inventory-utils';
 import { toast } from 'sonner';
-import { logoutEmployee } from '@/actions/auth';
 
 // Create a context to share the hook logic and UI handlers across pages
 interface InventoryContextType extends ReturnType<typeof useInventory> {
@@ -212,16 +211,6 @@ export default function SellerLayout({ children }: { children: React.ReactNode }
                                 <span className="hidden md:inline">Add Unit</span>
                             </button>
 
-                            <form action={logoutEmployee}>
-                                <button
-                                    type="submit"
-                                    className="flex min-h-10 min-w-10 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
-                                    title="Sign out of inventory"
-                                    aria-label="Sign out of inventory"
-                                >
-                                    <LogOut size={18} />
-                                </button>
-                            </form>
                         </div>
                     </header>
 

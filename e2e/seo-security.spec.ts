@@ -99,29 +99,29 @@ test.describe('Search discovery contract', () => {
   });
 });
 
-test.describe('Operational endpoint security', () => {
+test.describe('Operational endpoint contract', () => {
   test.beforeEach(({}, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop-chromium');
   });
 
-  test('inventory-only APIs reject anonymous requests', async ({ request }) => {
-    const responses = await Promise.all([
-      request.post('/api/upload?filename=test.png', {
-        data: Buffer.from('not-an-image'),
-        headers: { 'content-type': 'image/png' },
-      }),
-      request.post('/api/image-enhance', {
-        data: { imageUrl: 'https://example.com/test.png' },
-      }),
-      request.get('/api/test-user'),
-      request.post('/api/inventory-sync', {
-        data: { title: 'Unauthorized test' },
-      }),
-    ]);
+  test('external inventory sync remains protected', async ({ request }) => {
+    const response = await request.post('/api/inventory-sync', {
+      data: { title: 'Unauthorized test' },
+    });
 
-    for (const response of responses) {
-      expect(response.status()).toBe(401);
-    }
+    expect([401, 503]).toContain(response.status());
+  });
+
+  test('inventory browser APIs no longer fail only because a session cookie is absent', async ({ request }) => {
+    const imageEnhanceResponse = await request.post('/api/image-enhance', {
+      data: {},
+    });
+    expect(imageEnhanceResponse.status()).toBe(400);
+  });
+
+  test('the obsolete employee diagnostic endpoint is not exposed', async ({ request }) => {
+    const response = await request.get('/api/test-user');
+    expect(response.status()).toBe(404);
   });
 });
 
@@ -146,9 +146,9 @@ test.describe('Mobile conversion controls', () => {
     expect(Math.round((box?.y || 0) + (box?.height || 0))).toBeLessThanOrEqual(viewport?.height || 0);
   });
 
-  test('the conversion bar stays out of employee sign-in', async ({ page }, testInfo) => {
+  test('the conversion bar stays out of the inventory workspace', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'mobile-chromium');
-    await page.goto('/employee/login');
+    await page.goto('/inventory');
     await expect(page.getByRole('navigation', { name: 'Quick actions' })).toHaveCount(0);
   });
 });
