@@ -66,8 +66,10 @@ export function ClickTracker() {
       // data-track attribute from accidentally moving a tel: CTA back to click-phase.
       if (href.startsWith("tel:")) return "call_click";
 
+      // The only event name sourced from the DOM rather than the literals below,
+      // so it is the only one that can breach the 255-char event-name limit.
       const explicit = el.closest<HTMLElement>("[data-track]")?.dataset.track;
-      if (explicit) return explicit;
+      if (explicit) return explicit.slice(0, 255);
       if (href.startsWith("mailto:")) return "email_click";
       if (/maps\.google|google\.[a-z.]+\/maps/i.test(href)) return "directions_click";
       if (/facebook\.com|nextdoor\.com/i.test(href)) return "social_click";
