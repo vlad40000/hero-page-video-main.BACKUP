@@ -133,15 +133,42 @@ export function ClickTracker() {
       send(name, params);
     }
 
+    // The Part Finder dispatches its own rra-track CustomEvents, but nothing ever
+    // listened for them (see PartFinderClient.tsx) - including four call CTAs, so
+    // those fired into the void. Forward them through the same pipeline.
+    function onCustomTrack(event: Event) {
+      const detail = (event as CustomEvent).detail as
+        | { event?: unknown; payload?: unknown }
+        | undefined;
+
+      const name = typeof detail?.event === "string" ? detail.event.trim() : "";
+      if (!name) return;
+
+      const params: Params = { page_path: window.location.pathname };
+      const payload = detail?.payload;
+      if (payload && typeof payload === "object" && !Array.isArray(payload)) {
+        // Scalars only: nested objects are rejected downstream, and undefined
+        // values (e.g. an absent confidence score) are dropped rather than sent.
+        for (const [key, value] of Object.entries(payload as Record<string, unknown>)) {
+          if (typeof value === "string") params[key] = value.slice(0, 100);
+          else if (typeof value === "number" || typeof value === "boolean") params[key] = value;
+        }
+      }
+
+      send(name.slice(0, 255), params);
+    }
+
     const onPointerDown = (e: Event) => handle(e, "pointerdown");
     const onClick = (e: Event) => handle(e, "click");
 
     // Capture phase: fires before navigation/dialer handoff.
     document.addEventListener("pointerdown", onPointerDown, { capture: true });
     document.addEventListener("click", onClick, { capture: true });
+    window.addEventListener("rra-track", onCustomTrack);
     return () => {
       document.removeEventListener("pointerdown", onPointerDown, { capture: true });
       document.removeEventListener("click", onClick, { capture: true });
+      window.removeEventListener("rra-track", onCustomTrack);
     };
   }, []);
 
