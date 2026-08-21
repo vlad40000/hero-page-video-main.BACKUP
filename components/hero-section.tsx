@@ -79,6 +79,7 @@ export function HeroSection({ inventory }: HeroSectionProps) {
             </Link>
             <a
               href="tel:843-536-6005"
+              data-track-placement="hero"
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-white/55 bg-white/10 px-6 py-3 text-base font-extrabold text-white backdrop-blur-sm transition hover:border-white hover:bg-white hover:text-[#0b3554] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b3554]"
             >
               <Phone className="h-5 w-5" />

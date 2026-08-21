@@ -80,7 +80,7 @@ export function ContactSection() {
             size="lg"
             className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-8"
           >
-            <a href="tel:843-536-6005" className="flex items-center gap-2">
+            <a href="tel:843-536-6005" data-track-placement="contact_section" className="flex items-center gap-2">
               <Phone className="h-5 w-5" />
               Call Now: 843-536-6005
             </a>

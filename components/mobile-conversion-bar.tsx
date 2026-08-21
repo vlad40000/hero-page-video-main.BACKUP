@@ -72,6 +72,7 @@ export function MobileConversionBar() {
           </Link>
           <a
             href="tel:843-536-6005"
+            data-track-placement="mobile_bar"
             className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl bg-emerald-600 px-2 py-2 text-xs font-extrabold text-white shadow-md shadow-emerald-600/20 transition hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
             aria-label="Call Road Runner Appliance at 843-536-6005"
           >

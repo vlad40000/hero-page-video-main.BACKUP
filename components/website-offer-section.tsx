@@ -32,6 +32,7 @@ export function WebsiteOfferSection() {
               </Link>
               <a
                 href="tel:843-536-6005"
+                data-track-placement="offer_10pct"
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-slate-300 bg-white px-6 py-3 text-sm font-extrabold text-slate-900 transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
               >
                 <Phone className="h-4 w-4" />

@@ -70,6 +70,7 @@ export const SiteHeader = () => {
           <div className="flex items-center gap-2">
             <a
               href="tel:843-536-6005"
+              data-track-placement="header"
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-3 py-2 text-sm font-extrabold text-white shadow-md shadow-emerald-600/20 transition hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 sm:px-4"
               title="Call Road Runner Appliance"
             >

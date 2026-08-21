@@ -124,6 +124,7 @@ export function Footer() {
             <div className="flex flex-col gap-3">
               <a
                 href="tel:843-536-6005"
+                data-track-placement="footer"
                 className="flex items-center gap-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
               >
                 <Phone className="h-4 w-4" />

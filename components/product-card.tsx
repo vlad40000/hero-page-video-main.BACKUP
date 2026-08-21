@@ -95,7 +95,7 @@ export function ProductCard({
               <span />
             )}
             <Button size="sm" className="min-h-11" asChild>
-              <a href="tel:843-536-6005" aria-label={`Call about ${name}`}>
+              <a href="tel:843-536-6005" data-track-placement="product_card" data-track-model={model ?? name} aria-label={`Call about ${name}`}>
                 <Phone className="mr-1.5 h-3.5 w-3.5" />
                 Call
               </a>

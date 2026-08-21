@@ -23,6 +23,7 @@ export function HomeRepairSection() {
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
               <a
                 href="tel:843-536-6005"
+                data-track-placement="home_repair"
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#ffc400] px-6 py-3 text-base font-extrabold text-slate-950 transition hover:bg-[#ffd43b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b3554]"
               >
                 <Phone className="h-5 w-5" />

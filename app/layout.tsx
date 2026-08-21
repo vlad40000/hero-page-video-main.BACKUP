@@ -9,6 +9,7 @@ import { LocalBusinessSchema } from "@/components/local-business-schema"
 import { SiteHeader } from "@/components/SiteHeader"
 import { Footer } from "@/components/footer"
 import { MobileConversionBar } from "@/components/mobile-conversion-bar"
+import { ClickTracker } from "@/components/click-tracker"
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -56,6 +57,7 @@ export default function RootLayout({
                     <MobileConversionBar />
                 </div>
                 <Toaster position="top-center" richColors />
+                <ClickTracker />
                 <Analytics />
                 <Script
                     src="https://www.googletagmanager.com/gtag/js?id=G-P206BQ1SEC"

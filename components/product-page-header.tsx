@@ -35,7 +35,7 @@ export function ProductPageHeader({
             size="lg"
             className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
           >
-            <a href="tel:843-536-6005" className="flex items-center gap-2">
+            <a href="tel:843-536-6005" data-track-placement="product_page" className="flex items-center gap-2">
               <Phone className="h-5 w-5" />
               Call for Availability
             </a>
