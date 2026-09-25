@@ -606,7 +606,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
                     originalPrice: data.originalPrice,
                     ageMonths: data.ageMonths,
                     imageUrl: data.imageUrl,
-                    imageUploadState: isAnalyzingPhoto || isAnalyzingNameplate
+                    imageUploadState: isAnalyzingPhoto || nameplateBusy.single || nameplateBusy.washer || nameplateBusy.dryer
                         ? 'uploading'
                         : productImage?.startsWith('blob:')
                             ? 'local-preview'
