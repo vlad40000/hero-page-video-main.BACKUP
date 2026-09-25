@@ -13,11 +13,13 @@ interface ImageUploadSectionProps {
     isMatchedSet: boolean;
     isAnalyzingProduct: boolean;
     isAnalyzingNameplate: boolean;
+    isAnalyzingWasherNameplate: boolean;
+    isAnalyzingDryerNameplate: boolean;
     photoAnalysisResult: { isMatch: boolean; reasoning: string; conditionReasoning: string } | null;
-    onProductImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onNameplateImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onWasherNameplateUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onDryerNameplateUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onProductImageUpload: (e: React.ChangeEvent<HTMLInputElement>, overwriteCurrent?: boolean) => void;
+    onNameplateImageUpload: (e: React.ChangeEvent<HTMLInputElement>, overwriteCurrent?: boolean) => void;
+    onWasherNameplateUpload: (e: React.ChangeEvent<HTMLInputElement>, overwriteCurrent?: boolean) => void;
+    onDryerNameplateUpload: (e: React.ChangeEvent<HTMLInputElement>, overwriteCurrent?: boolean) => void;
 }
 
 function NameplateUploadCard({
@@ -29,13 +31,20 @@ function NameplateUploadCard({
     label: string;
     image: string | null;
     isAnalyzing: boolean;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>, overwriteCurrent?: boolean) => void;
 }) {
     const inputRef = useRef<HTMLInputElement>(null);
+    const overwriteRef = useRef(false);
+
+    const chooseFile = (overwriteCurrent: boolean) => {
+        if (isAnalyzing) return;
+        overwriteRef.current = overwriteCurrent;
+        inputRef.current?.click();
+    };
 
     return (
         <div
-            onClick={() => !isAnalyzing && inputRef.current?.click()}
+            onClick={() => !image && chooseFile(false)}
             className={cn(
                 'relative aspect-square border-2 border-dashed rounded-2xl cursor-pointer flex flex-col items-center justify-center transition-all overflow-hidden active:scale-95',
                 image ? 'border-indigo-400' : 'border-indigo-200 hover:border-indigo-400 bg-indigo-50/30',
@@ -52,7 +61,22 @@ function NameplateUploadCard({
                                 <span className="text-[10px] font-bold text-indigo-800">Reading...</span>
                             </div>
                         ) : (
-                            <div className="bg-indigo-600 text-white p-2 rounded-full shadow-lg"><ScanLine size={16} /></div>
+                            <div className="flex flex-col gap-2">
+                                <button
+                                    type="button"
+                                    onClick={(event) => { event.stopPropagation(); chooseFile(true); }}
+                                    className="rounded-lg bg-indigo-600 px-3 py-2 text-[10px] font-bold text-white shadow-lg hover:bg-indigo-700"
+                                >
+                                    Replace current
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={(event) => { event.stopPropagation(); chooseFile(false); }}
+                                    className="rounded-lg bg-white/95 px-3 py-2 text-[10px] font-bold text-indigo-700 shadow hover:bg-white"
+                                >
+                                    Upload as new
+                                </button>
+                            </div>
                         )}
                     </div>
                 </>
@@ -63,7 +87,13 @@ function NameplateUploadCard({
                     <span className="text-[10px] text-indigo-600/70 text-center">Scan nameplate</span>
                 </>
             )}
-            <input type="file" ref={inputRef} className="hidden" accept="image/*" onChange={onChange} />
+            <input
+                type="file"
+                ref={inputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={(event) => onChange(event, overwriteRef.current)}
+            />
         </div>
     );
 }
@@ -76,6 +106,8 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
     isMatchedSet,
     isAnalyzingProduct,
     isAnalyzingNameplate,
+    isAnalyzingWasherNameplate,
+    isAnalyzingDryerNameplate,
     photoAnalysisResult,
     onProductImageUpload,
     onNameplateImageUpload,
@@ -83,10 +115,17 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
     onDryerNameplateUpload,
 }) => {
     const productInputRef = useRef<HTMLInputElement>(null);
+    const productOverwriteRef = useRef(false);
+
+    const chooseProductFile = (overwriteCurrent: boolean) => {
+        if (isAnalyzingProduct) return;
+        productOverwriteRef.current = overwriteCurrent;
+        productInputRef.current?.click();
+    };
 
     const productCard = (
         <div
-            onClick={() => !isAnalyzingProduct && productInputRef.current?.click()}
+            onClick={() => !productImage && chooseProductFile(false)}
             className={cn(
                 'relative aspect-square border-2 border-dashed rounded-2xl cursor-pointer flex flex-col items-center justify-center transition-all overflow-hidden active:scale-95',
                 productImage ? 'border-blue-400' : 'border-slate-200 hover:border-blue-300 bg-slate-50',
@@ -103,8 +142,21 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
                                 <span className="text-[10px] font-bold text-blue-800">Assessing...</span>
                             </div>
                         ) : (
-                            <div className="absolute inset-0 hover:bg-black/20 transition-colors flex items-center justify-center group">
-                                <Camera className="text-white opacity-0 group-hover:opacity-100 transition-opacity" size={24} />
+                            <div className="flex flex-col gap-2">
+                                <button
+                                    type="button"
+                                    onClick={(event) => { event.stopPropagation(); chooseProductFile(true); }}
+                                    className="rounded-lg bg-blue-600 px-3 py-2 text-[10px] font-bold text-white shadow-lg hover:bg-blue-700"
+                                >
+                                    Replace current
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={(event) => { event.stopPropagation(); chooseProductFile(false); }}
+                                    className="rounded-lg bg-white/95 px-3 py-2 text-[10px] font-bold text-blue-700 shadow hover:bg-white"
+                                >
+                                    Upload as new
+                                </button>
                             </div>
                         )}
                     </div>
@@ -116,7 +168,13 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
                     <span className="text-[10px] text-slate-400 text-center">Main website image</span>
                 </>
             )}
-            <input type="file" ref={productInputRef} className="hidden" accept="image/*" onChange={onProductImageUpload} />
+            <input
+                type="file"
+                ref={productInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={(event) => onProductImageUpload(event, productOverwriteRef.current)}
+            />
         </div>
     );
 
@@ -126,8 +184,8 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
                 <div className="space-y-3">
                     <div className="mx-auto max-w-[240px]">{productCard}</div>
                     <div className="grid grid-cols-2 gap-3">
-                        <NameplateUploadCard label="Washer" image={washerNameplateImage} isAnalyzing={isAnalyzingNameplate} onChange={onWasherNameplateUpload} />
-                        <NameplateUploadCard label="Dryer" image={dryerNameplateImage} isAnalyzing={isAnalyzingNameplate} onChange={onDryerNameplateUpload} />
+                        <NameplateUploadCard label="Washer" image={washerNameplateImage} isAnalyzing={isAnalyzingWasherNameplate} onChange={onWasherNameplateUpload} />
+                        <NameplateUploadCard label="Dryer" image={dryerNameplateImage} isAnalyzing={isAnalyzingDryerNameplate} onChange={onDryerNameplateUpload} />
                     </div>
                     <p className="text-center text-[10px] font-medium text-slate-400">Scan both nameplates. They will save as one Washer & Dryer Set listing.</p>
                 </div>

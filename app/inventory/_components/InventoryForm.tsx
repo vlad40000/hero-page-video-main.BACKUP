@@ -69,6 +69,18 @@ type MatchedSetComponent = {
     serial?: string;
 };
 
+function getVercelBlobPathname(url: string | null): string | null {
+    if (!url || !url.startsWith('http')) return null;
+
+    try {
+        const parsed = new URL(url);
+        if (!parsed.hostname.endsWith('.blob.vercel-storage.com')) return null;
+        return decodeURIComponent(parsed.pathname.replace(/^\/+/, '')) || null;
+    } catch {
+        return null;
+    }
+}
+
 const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], onSubmit, onClose }) => {
     // Initialize Form
     const methods = useForm<InventoryFormValues>({
@@ -104,7 +116,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
     const [dryerNameplateImage, setDryerNameplateImage] = useState<string | null>(null);
     const [matchedSetComponents, setMatchedSetComponents] = useState<Partial<Record<MatchedSetRole, MatchedSetComponent>>>({});
     const [isAnalyzingPhoto, setIsAnalyzingPhoto] = useState(false);
-    const [isAnalyzingNameplate, setIsAnalyzingNameplate] = useState(false);
+    const [nameplateBusyRole, setNameplateBusyRole] = useState<'single' | MatchedSetRole | null>(null);
     const [photoAnalysisResult, setPhotoAnalysisResult] = useState<{ isMatch: boolean, reasoning: string, conditionReasoning: string } | null>(null);
     const [isLookingUpSerial, setIsLookingUpSerial] = useState(false);
     const [isRegenerating, setIsRegenerating] = useState(false);
@@ -164,9 +176,16 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
     }, [originalPrice, ageMonths, brand, condition]);
 
     // Handlers
-    const handleProductImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleProductImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, overwriteCurrent: boolean = false) => {
         const file = e.target.files?.[0];
         if (!file) return;
+
+        const existingImage = productImage;
+        const overwritePath = overwriteCurrent ? getVercelBlobPathname(existingImage) : null;
+
+        if (overwriteCurrent && !overwritePath) {
+            toast.info("This image cannot be overwritten in-place; uploading it as a new file instead.");
+        }
 
         try {
             const id = ++requestIds.current.photo;
@@ -177,10 +196,15 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
             const localPreview = URL.createObjectURL(file);
             setProductImage(localPreview);
 
-            // 2) Upload to Blob
-            await logToServer("[IMAGE-STAB] Starting background cloud upload", { name: file.name, size: file.size });
+            // 2) Upload to Blob. A deliberate replacement reuses the current Blob pathname.
+            await logToServer("[IMAGE-STAB] Starting background cloud upload", {
+                name: file.name,
+                size: file.size,
+                overwrite: Boolean(overwritePath),
+            });
 
-            const response = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
+            const uploadFilename = overwritePath || file.name;
+            const response = await fetch(`/api/upload?filename=${encodeURIComponent(uploadFilename)}&overwrite=${overwritePath ? 'true' : 'false'}`, {
                 method: "POST",
                 body: file,
             });
@@ -241,13 +265,28 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
         }
     };
 
-    const handleNameplateUpload = async (e: React.ChangeEvent<HTMLInputElement>, role: 'single' | MatchedSetRole = 'single') => {
+    const handleNameplateUpload = async (
+        e: React.ChangeEvent<HTMLInputElement>,
+        role: 'single' | MatchedSetRole = 'single',
+        overwriteCurrent: boolean = false,
+    ) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
+        const existingImage = role === 'washer'
+            ? washerNameplateImage
+            : role === 'dryer'
+                ? dryerNameplateImage
+                : nameplateImage;
+        const overwritePath = overwriteCurrent ? getVercelBlobPathname(existingImage) : null;
+
+        if (overwriteCurrent && !overwritePath) {
+            toast.info("This nameplate cannot be overwritten in-place; uploading it as a new file instead.");
+        }
+
         try {
             const id = ++requestIds.current.nameplate;
-            setIsAnalyzingNameplate(true);
+            setNameplateBusyRole(role);
 
             // 1. Local preview (transient)
             const localPreview = URL.createObjectURL(file);
@@ -255,9 +294,14 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
             else if (role === 'dryer') setDryerNameplateImage(localPreview);
             else setNameplateImage(localPreview);
 
-            // 2. Background Upload
-            await logToServer("[IMAGE-STAB] Nameplate: Starting background upload", { name: file.name });
-            const response = await fetch(`/api/upload?filename=${role}_nameplate_${encodeURIComponent(file.name)}`, {
+            // 2. Background Upload. Only the active nameplate card is busy.
+            await logToServer("[IMAGE-STAB] Nameplate: Starting background upload", {
+                name: file.name,
+                role,
+                overwrite: Boolean(overwritePath),
+            });
+            const uploadFilename = overwritePath || `${role}_nameplate_${file.name}`;
+            const response = await fetch(`/api/upload?filename=${encodeURIComponent(uploadFilename)}&overwrite=${overwritePath ? 'true' : 'false'}`, {
                 method: 'POST',
                 body: file,
             });
@@ -361,7 +405,8 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
             console.error("Nameplate analysis failed:", error);
             toast.error(error instanceof Error ? error.message : "Failed to analyze nameplate");
         } finally {
-            setIsAnalyzingNameplate(false);
+            setNameplateBusyRole(current => current === role ? null : current);
+            e.target.value = "";
         }
     };
 
@@ -630,12 +675,14 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
                             dryerNameplateImage={dryerNameplateImage}
                             isMatchedSet={entryMode === 'matched-set'}
                             isAnalyzingProduct={isAnalyzingPhoto}
-                            isAnalyzingNameplate={isAnalyzingNameplate}
+                            isAnalyzingNameplate={nameplateBusyRole === 'single'}
+                            isAnalyzingWasherNameplate={nameplateBusyRole === 'washer'}
+                            isAnalyzingDryerNameplate={nameplateBusyRole === 'dryer'}
                             photoAnalysisResult={photoAnalysisResult}
                             onProductImageUpload={handleProductImageUpload}
-                            onNameplateImageUpload={(e) => handleNameplateUpload(e, 'single')}
-                            onWasherNameplateUpload={(e) => handleNameplateUpload(e, 'washer')}
-                            onDryerNameplateUpload={(e) => handleNameplateUpload(e, 'dryer')}
+                            onNameplateImageUpload={(e, overwrite) => handleNameplateUpload(e, 'single', overwrite)}
+                            onWasherNameplateUpload={(e, overwrite) => handleNameplateUpload(e, 'washer', overwrite)}
+                            onDryerNameplateUpload={(e, overwrite) => handleNameplateUpload(e, 'dryer', overwrite)}
                         />
 
                         {duplicateItem && (

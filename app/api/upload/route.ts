@@ -10,6 +10,7 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request): Promise<NextResponse> {
     const { searchParams } = new URL(request.url);
     const filename = searchParams.get('filename') || 'image.jpg';
+    const allowOverwrite = searchParams.get('overwrite') === 'true';
 
     try {
         if (!request.body) {
@@ -42,11 +43,18 @@ export async function POST(request: Request): Promise<NextResponse> {
 
         const blob = await put(filename, arrayBuffer, {
             access: 'public',
-            token: token
+            token: token,
+            allowOverwrite,
         });
 
-        console.log(`[BLOB-UPLOAD] Success: ${blob.url} (${arrayBuffer.byteLength} bytes)`);
-        return NextResponse.json(blob);
+        // Public Blob URLs can be cached. On overwrite, return a cache-busted URL so
+        // the UI and analysis pipeline immediately read the replacement bytes.
+        const responseBlob = allowOverwrite
+            ? { ...blob, canonicalUrl: blob.url, url: `${blob.url}?v=${Date.now()}`, overwritten: true }
+            : { ...blob, overwritten: false };
+
+        console.log(`[BLOB-UPLOAD] Success: ${blob.url} (${arrayBuffer.byteLength} bytes, overwrite=${allowOverwrite})`);
+        return NextResponse.json(responseBlob);
     } catch (error) {
         console.error('[BLOB-UPLOAD] Failure:', error);
         return NextResponse.json(
