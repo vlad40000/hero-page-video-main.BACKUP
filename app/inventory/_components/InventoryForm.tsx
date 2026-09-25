@@ -115,6 +115,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
     const [washerNameplateImage, setWasherNameplateImage] = useState<string | null>(null);
     const [dryerNameplateImage, setDryerNameplateImage] = useState<string | null>(null);
     const [matchedSetComponents, setMatchedSetComponents] = useState<Partial<Record<MatchedSetRole, MatchedSetComponent>>>({});
+    const [singleScannedComponent, setSingleScannedComponent] = useState<MatchedSetComponent | null>(null);
     const [isAnalyzingPhoto, setIsAnalyzingPhoto] = useState(false);
     const [nameplateBusy, setNameplateBusy] = useState<Record<'single' | MatchedSetRole, boolean>>({
         single: false,
@@ -375,6 +376,11 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
             }
 
             setNameplateImage(cloudUrl); // Switch to permanent cloud URL
+            setSingleScannedComponent({
+                brand: String(productData.brand || '').trim(),
+                model: String(productData.model || '').trim(),
+                serial: String(productData.serial || '').trim() || undefined,
+            });
 
             // Prepare incoming data
             const incoming: Partial<InventoryFormValues> = {
@@ -419,6 +425,44 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
             setNameplateBusy(current => ({ ...current, [role]: false }));
             e.target.value = "";
         }
+    };
+
+    const assignSingleScanToMatchedSet = (role: MatchedSetRole) => {
+        if (!singleScannedComponent || !nameplateImage) return;
+
+        const nextComponents = { ...matchedSetComponents, [role]: singleScannedComponent };
+        setMatchedSetComponents(nextComponents);
+
+        if (role === 'washer') setWasherNameplateImage(nameplateImage);
+        else setDryerNameplateImage(nameplateImage);
+
+        const washer = nextComponents.washer;
+        const dryer = nextComponents.dryer;
+        const available = washer || dryer;
+
+        setValue('category', 'Washer & Dryer Sets', { shouldDirty: true, shouldValidate: true });
+
+        if (available) {
+            setValue('brand', available.brand, { shouldDirty: true, shouldValidate: true });
+            setValue('model', available.model, { shouldDirty: true, shouldValidate: true });
+            setValue('serial', available.serial || '', { shouldDirty: true, shouldValidate: true });
+        }
+
+        if (washer && dryer) {
+            const brands = Array.from(new Set([washer.brand, dryer.brand].filter(Boolean)));
+            const combinedBrand = brands.join(' / ');
+            const combinedModel = `${washer.model} / ${dryer.model}`;
+            const combinedSerial = [washer.serial, dryer.serial].filter(Boolean).join(' / ');
+
+            setValue('brand', combinedBrand, { shouldDirty: true, shouldValidate: true });
+            setValue('model', combinedModel, { shouldDirty: true, shouldValidate: true });
+            setValue('serial', combinedSerial, { shouldDirty: true, shouldValidate: true });
+            setValue('title', `${combinedBrand} Washer & Dryer Set - ${combinedModel}`, { shouldDirty: true, shouldValidate: true });
+        }
+
+        setNameplateImage(null);
+        setSingleScannedComponent(null);
+        toast.success(`Scanned appliance moved to the ${role} side of this matched set`);
     };
 
     const handleSerialLookup = async () => {
@@ -676,6 +720,34 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
                                 >
                                     Matched Washer/Dryer Set
                                 </button>
+                            </div>
+                        )}
+
+                        {entryMode === 'matched-set' && singleScannedComponent && nameplateImage && (
+                            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                                <p className="text-xs font-bold uppercase tracking-wide text-amber-800">
+                                    Reuse the nameplate you already scanned
+                                </p>
+                                <p className="mt-1 text-xs text-amber-700">
+                                    {singleScannedComponent.brand} {singleScannedComponent.model}
+                                    {singleScannedComponent.serial ? ` · ${singleScannedComponent.serial}` : ''}
+                                </p>
+                                <div className="mt-3 grid grid-cols-2 gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => assignSingleScanToMatchedSet('washer')}
+                                        className="rounded-xl bg-white px-3 py-2.5 text-xs font-bold text-indigo-700 shadow-sm ring-1 ring-indigo-100 hover:bg-indigo-50"
+                                    >
+                                        Use as Washer
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => assignSingleScanToMatchedSet('dryer')}
+                                        className="rounded-xl bg-white px-3 py-2.5 text-xs font-bold text-indigo-700 shadow-sm ring-1 ring-indigo-100 hover:bg-indigo-50"
+                                    >
+                                        Use as Dryer
+                                    </button>
+                                </div>
                             </div>
                         )}
 
