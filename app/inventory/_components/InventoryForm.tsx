@@ -116,7 +116,11 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
     const [dryerNameplateImage, setDryerNameplateImage] = useState<string | null>(null);
     const [matchedSetComponents, setMatchedSetComponents] = useState<Partial<Record<MatchedSetRole, MatchedSetComponent>>>({});
     const [isAnalyzingPhoto, setIsAnalyzingPhoto] = useState(false);
-    const [nameplateBusyRole, setNameplateBusyRole] = useState<'single' | MatchedSetRole | null>(null);
+    const [nameplateBusy, setNameplateBusy] = useState<Record<'single' | MatchedSetRole, boolean>>({
+        single: false,
+        washer: false,
+        dryer: false,
+    });
     const [photoAnalysisResult, setPhotoAnalysisResult] = useState<{ isMatch: boolean, reasoning: string, conditionReasoning: string } | null>(null);
     const [isLookingUpSerial, setIsLookingUpSerial] = useState(false);
     const [isRegenerating, setIsRegenerating] = useState(false);
@@ -128,7 +132,9 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
     // Request IDs for stale response protection
     const requestIds = useRef({
         photo: 0,
-        nameplate: 0,
+        nameplateSingle: 0,
+        nameplateWasher: 0,
+        nameplateDryer: 0,
         serial: 0,
         description: 0
     });
@@ -285,8 +291,13 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
         }
 
         try {
-            const id = ++requestIds.current.nameplate;
-            setNameplateBusyRole(role);
+            const requestKey = role === 'washer'
+                ? 'nameplateWasher'
+                : role === 'dryer'
+                    ? 'nameplateDryer'
+                    : 'nameplateSingle';
+            const id = ++requestIds.current[requestKey];
+            setNameplateBusy(current => ({ ...current, [role]: true }));
 
             // 1. Local preview (transient)
             const localPreview = URL.createObjectURL(file);
@@ -318,7 +329,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
             // 3. Trigger Analysis using the URL
             const productData = await analyzeProductImageAction(cloudUrl);
 
-            if (id !== requestIds.current.nameplate) return;
+            if (id !== requestIds.current[requestKey]) return;
 
             if (entryMode === 'matched-set' && role !== 'single') {
                 const component: MatchedSetComponent = {
@@ -405,7 +416,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
             console.error("Nameplate analysis failed:", error);
             toast.error(error instanceof Error ? error.message : "Failed to analyze nameplate");
         } finally {
-            setNameplateBusyRole(current => current === role ? null : current);
+            setNameplateBusy(current => ({ ...current, [role]: false }));
             e.target.value = "";
         }
     };
@@ -675,9 +686,9 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
                             dryerNameplateImage={dryerNameplateImage}
                             isMatchedSet={entryMode === 'matched-set'}
                             isAnalyzingProduct={isAnalyzingPhoto}
-                            isAnalyzingNameplate={nameplateBusyRole === 'single'}
-                            isAnalyzingWasherNameplate={nameplateBusyRole === 'washer'}
-                            isAnalyzingDryerNameplate={nameplateBusyRole === 'dryer'}
+                            isAnalyzingNameplate={nameplateBusy.single}
+                            isAnalyzingWasherNameplate={nameplateBusy.washer}
+                            isAnalyzingDryerNameplate={nameplateBusy.dryer}
                             photoAnalysisResult={photoAnalysisResult}
                             onProductImageUpload={handleProductImageUpload}
                             onNameplateImageUpload={(e, overwrite) => handleNameplateUpload(e, 'single', overwrite)}

@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import React, { useRef } from 'react';
-import { Camera, ImageIcon, ScanLine, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ImageIcon, ScanLine, CheckCircle, AlertTriangle } from 'lucide-react';
 import { LoadingLogo } from '@/components/LoadingLogo';
 import { cn, getDisplayUrl } from '@/lib/utils';
 
