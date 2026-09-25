@@ -115,6 +115,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
     const [washerNameplateImage, setWasherNameplateImage] = useState<string | null>(null);
     const [dryerNameplateImage, setDryerNameplateImage] = useState<string | null>(null);
     const [matchedSetComponents, setMatchedSetComponents] = useState<Partial<Record<MatchedSetRole, MatchedSetComponent>>>({});
+    const matchedSetComponentsRef = useRef<Partial<Record<MatchedSetRole, MatchedSetComponent>>>({});
     const [singleScannedComponent, setSingleScannedComponent] = useState<MatchedSetComponent | null>(null);
     const [isAnalyzingPhoto, setIsAnalyzingPhoto] = useState(false);
     const [nameplateBusy, setNameplateBusy] = useState<Record<'single' | MatchedSetRole, boolean>>({
@@ -245,7 +246,13 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
                 finalImageUrl,
             });
 
-            const analysis = await analyzeListingPhotoAction(finalImageUrl, brand, model);
+            // A matched-set photo contains two appliances, so do not compare it
+            // against one component model. For sets, use the photo for condition only.
+            const analysis = await analyzeListingPhotoAction(
+                finalImageUrl,
+                entryMode === 'matched-set' ? undefined : brand,
+                entryMode === 'matched-set' ? undefined : model,
+            );
 
             if (id !== requestIds.current.photo) return;
 
@@ -254,8 +261,10 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
             }
 
             setPhotoAnalysisResult({
-                isMatch: analysis.isMatch,
-                reasoning: analysis.matchReasoning,
+                isMatch: entryMode === 'matched-set' ? true : analysis.isMatch,
+                reasoning: entryMode === 'matched-set'
+                    ? 'Set photo accepted. Washer and dryer identity is verified from the two nameplates.'
+                    : analysis.matchReasoning,
                 conditionReasoning: analysis.conditionReasoning,
             });
 
@@ -348,7 +357,8 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
                 if (role === 'washer') setWasherNameplateImage(cloudUrl);
                 if (role === 'dryer') setDryerNameplateImage(cloudUrl);
 
-                const nextComponents = { ...matchedSetComponents, [role]: component };
+                const nextComponents = { ...matchedSetComponentsRef.current, [role]: component };
+                matchedSetComponentsRef.current = nextComponents;
                 setMatchedSetComponents(nextComponents);
                 setValue('category', 'Washer & Dryer Sets', { shouldDirty: true, shouldValidate: true });
 
@@ -444,7 +454,8 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
     const assignSingleScanToMatchedSet = (role: MatchedSetRole) => {
         if (!singleScannedComponent || !nameplateImage) return;
 
-        const nextComponents = { ...matchedSetComponents, [role]: singleScannedComponent };
+        const nextComponents = { ...matchedSetComponentsRef.current, [role]: singleScannedComponent };
+        matchedSetComponentsRef.current = nextComponents;
         setMatchedSetComponents(nextComponents);
 
         if (role === 'washer') setWasherNameplateImage(nameplateImage);
