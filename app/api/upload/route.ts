@@ -45,6 +45,10 @@ export async function POST(request: Request): Promise<NextResponse> {
             access: 'public',
             token: token,
             allowOverwrite,
+            // A fresh upload must never fail just because this camera/file name was
+            // used before. Replacement mode keeps the exact pathname; new mode gets
+            // a unique suffix from Vercel Blob.
+            addRandomSuffix: !allowOverwrite,
         });
 
         // Public Blob URLs can be cached. On overwrite, return a cache-busted URL so
