@@ -62,6 +62,13 @@ async function enhanceInventoryImage(cloudUrl: string) {
     };
 }
 
+type MatchedSetRole = 'washer' | 'dryer';
+type MatchedSetComponent = {
+    brand: string;
+    model: string;
+    serial?: string;
+};
+
 const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], onSubmit, onClose }) => {
     // Initialize Form
     const methods = useForm<InventoryFormValues>({
@@ -89,8 +96,13 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
     const { handleSubmit, watch, setValue, formState: { isSubmitting, dirtyFields } } = methods;
 
     // Local UI State
+    const initialMatchedSet = initialData?.category === 'Washer & Dryer Sets' && Boolean(initialData?.model?.includes(' / '));
+    const [entryMode, setEntryMode] = useState<'single' | 'matched-set'>(initialMatchedSet ? 'matched-set' : 'single');
     const [productImage, setProductImage] = useState<string | null>(initialData?.imageUrl || null);
     const [nameplateImage, setNameplateImage] = useState<string | null>(null);
+    const [washerNameplateImage, setWasherNameplateImage] = useState<string | null>(null);
+    const [dryerNameplateImage, setDryerNameplateImage] = useState<string | null>(null);
+    const [matchedSetComponents, setMatchedSetComponents] = useState<Partial<Record<MatchedSetRole, MatchedSetComponent>>>({});
     const [isAnalyzingPhoto, setIsAnalyzingPhoto] = useState(false);
     const [isAnalyzingNameplate, setIsAnalyzingNameplate] = useState(false);
     const [photoAnalysisResult, setPhotoAnalysisResult] = useState<{ isMatch: boolean, reasoning: string, conditionReasoning: string } | null>(null);
@@ -229,7 +241,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
         }
     };
 
-    const handleNameplateUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleNameplateUpload = async (e: React.ChangeEvent<HTMLInputElement>, role: 'single' | MatchedSetRole = 'single') => {
         const file = e.target.files?.[0];
         if (!file) return;
 
@@ -239,11 +251,13 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
 
             // 1. Local preview (transient)
             const localPreview = URL.createObjectURL(file);
-            setNameplateImage(localPreview);
+            if (role === 'washer') setWasherNameplateImage(localPreview);
+            else if (role === 'dryer') setDryerNameplateImage(localPreview);
+            else setNameplateImage(localPreview);
 
             // 2. Background Upload
             await logToServer("[IMAGE-STAB] Nameplate: Starting background upload", { name: file.name });
-            const response = await fetch(`/api/upload?filename=nameplate_${encodeURIComponent(file.name)}`, {
+            const response = await fetch(`/api/upload?filename=${role}_nameplate_${encodeURIComponent(file.name)}`, {
                 method: 'POST',
                 body: file,
             });
@@ -261,6 +275,50 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
             const productData = await analyzeProductImageAction(cloudUrl);
 
             if (id !== requestIds.current.nameplate) return;
+
+            if (entryMode === 'matched-set' && role !== 'single') {
+                const component: MatchedSetComponent = {
+                    brand: String(productData.brand || '').trim(),
+                    model: String(productData.model || '').trim(),
+                    serial: String(productData.serial || '').trim() || undefined,
+                };
+
+                if (!component.brand || !component.model) {
+                    throw new Error(`Could not read the ${role} brand/model from that nameplate.`);
+                }
+
+                if (role === 'washer') setWasherNameplateImage(cloudUrl);
+                if (role === 'dryer') setDryerNameplateImage(cloudUrl);
+
+                const nextComponents = { ...matchedSetComponents, [role]: component };
+                setMatchedSetComponents(nextComponents);
+                setValue('category', 'Washer & Dryer Sets', { shouldDirty: true, shouldValidate: true });
+
+                const washer = nextComponents.washer;
+                const dryer = nextComponents.dryer;
+                const available = washer || dryer;
+                if (available) {
+                    setValue('brand', available.brand, { shouldDirty: true, shouldValidate: true });
+                    setValue('model', available.model, { shouldDirty: true, shouldValidate: true });
+                    setValue('serial', available.serial || '', { shouldDirty: true, shouldValidate: true });
+                }
+
+                if (washer && dryer) {
+                    const brands = Array.from(new Set([washer.brand, dryer.brand].filter(Boolean)));
+                    const combinedBrand = brands.join(' / ');
+                    const combinedModel = `${washer.model} / ${dryer.model}`;
+                    const combinedSerial = [washer.serial, dryer.serial].filter(Boolean).join(' / ');
+
+                    setValue('brand', combinedBrand, { shouldDirty: true, shouldValidate: true });
+                    setValue('model', combinedModel, { shouldDirty: true, shouldValidate: true });
+                    setValue('serial', combinedSerial, { shouldDirty: true, shouldValidate: true });
+                    setValue('title', `${combinedBrand} Washer & Dryer Set - ${combinedModel}`, { shouldDirty: true, shouldValidate: true });
+                }
+
+                toast.success(`${role === 'washer' ? 'Washer' : 'Dryer'} nameplate scanned`);
+                return;
+            }
+
             setNameplateImage(cloudUrl); // Switch to permanent cloud URL
 
             // Prepare incoming data
@@ -301,7 +359,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
 
         } catch (error) {
             console.error("Nameplate analysis failed:", error);
-            toast.error("Failed to analyze nameplate");
+            toast.error(error instanceof Error ? error.message : "Failed to analyze nameplate");
         } finally {
             setIsAnalyzingNameplate(false);
         }
@@ -470,6 +528,15 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
 
     const onFormSubmit = async (data: InventoryFormValues) => {
         try {
+            if (entryMode === 'matched-set' && !initialData && (!matchedSetComponents.washer || !matchedSetComponents.dryer)) {
+                toast.error('Scan both the washer and dryer nameplates before saving a matched set.');
+                return;
+            }
+
+            if (entryMode === 'matched-set') {
+                data.category = 'Washer & Dryer Sets';
+            }
+
             const validation = validateMarketFloodInput(
                 {
                     id: initialData?.id,
@@ -534,14 +601,41 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
                 <FormProvider {...methods}>
                     <form onSubmit={handleSubmit(onFormSubmit, (errors) => logToServer('VALIDATION ERRORS', errors))} className="p-6 space-y-6 overflow-y-auto pb-safe">
 
+                        {!initialData && (
+                            <div className="grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1">
+                                <button
+                                    type="button"
+                                    onClick={() => setEntryMode('single')}
+                                    className={cn('rounded-xl px-3 py-3 text-xs font-bold transition-all', entryMode === 'single' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500')}
+                                >
+                                    Single Appliance
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setEntryMode('matched-set');
+                                        setValue('category', 'Washer & Dryer Sets', { shouldDirty: true, shouldValidate: true });
+                                    }}
+                                    className={cn('rounded-xl px-3 py-3 text-xs font-bold transition-all', entryMode === 'matched-set' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500')}
+                                >
+                                    Matched Washer/Dryer Set
+                                </button>
+                            </div>
+                        )}
+
                         <ImageUploadSection
                             productImage={productImage}
                             nameplateImage={nameplateImage}
+                            washerNameplateImage={washerNameplateImage}
+                            dryerNameplateImage={dryerNameplateImage}
+                            isMatchedSet={entryMode === 'matched-set'}
                             isAnalyzingProduct={isAnalyzingPhoto}
                             isAnalyzingNameplate={isAnalyzingNameplate}
                             photoAnalysisResult={photoAnalysisResult}
                             onProductImageUpload={handleProductImageUpload}
-                            onNameplateImageUpload={handleNameplateUpload}
+                            onNameplateImageUpload={(e) => handleNameplateUpload(e, 'single')}
+                            onWasherNameplateUpload={(e) => handleNameplateUpload(e, 'washer')}
+                            onDryerNameplateUpload={(e) => handleNameplateUpload(e, 'dryer')}
                         />
 
                         {duplicateItem && (
@@ -596,6 +690,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
 
                         <div className="space-y-4">
                             <ProductInfoSection
+                                isMatchedSet={entryMode === 'matched-set'}
                                 isRegenerating={isRegenerating}
                                 isLookingUpSerial={isLookingUpSerial}
                                 serialLookupSources={sources || []}

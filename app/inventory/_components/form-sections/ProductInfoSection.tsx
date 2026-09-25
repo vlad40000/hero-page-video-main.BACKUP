@@ -9,6 +9,7 @@ import { InventoryFormValues } from '../inventory-schema';
 import { cn } from '@/lib/utils';
 
 interface ProductInfoSectionProps {
+    isMatchedSet?: boolean;
     isRegenerating: boolean;
     isLookingUpSerial: boolean;
     serialLookupSources: { title: string; uri: string }[];
@@ -17,6 +18,7 @@ interface ProductInfoSectionProps {
 }
 
 export const ProductInfoSection: React.FC<ProductInfoSectionProps> = ({
+    isMatchedSet = false,
     isRegenerating,
     isLookingUpSerial,
     serialLookupSources,
@@ -89,7 +91,7 @@ export const ProductInfoSection: React.FC<ProductInfoSectionProps> = ({
                     <button
                         type="button"
                         onClick={onSerialLookup}
-                        disabled={!serial || !brand || isLookingUpSerial || isAnalyzing}
+                        disabled={isMatchedSet || !serial || !brand || isLookingUpSerial || isAnalyzing}
                         className="bg-indigo-600 text-white px-3 rounded-xl font-bold flex items-center gap-2 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors"
                     >
                         {isLookingUpSerial ? <LoadingLogo size={20} label="Looking up serial" /> : <Wand2 size={18} />}
@@ -99,7 +101,7 @@ export const ProductInfoSection: React.FC<ProductInfoSectionProps> = ({
                 {errors.serial && <span className="text-[10px] text-red-500 mt-1 block">{errors.serial.message}</span>}
 
                 <div className="flex flex-col gap-1 mt-1.5 ml-1">
-                    <p className="text-[10px] text-slate-400">Enter Serial & Brand to auto-detect Age & Original MSRP</p>
+                    <p className="text-[10px] text-slate-400">{isMatchedSet ? 'Matched sets keep both model/serial identities in the single listing; serial auto-fill is disabled.' : 'Enter Serial & Brand to auto-detect Age & Original MSRP'}</p>
                     {serialLookupSources.length > 0 && (
                         <div className="flex flex-wrap gap-2 text-[10px] text-slate-500 items-center">
                             <LinkIcon size={10} />
