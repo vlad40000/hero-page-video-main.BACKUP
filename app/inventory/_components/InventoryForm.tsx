@@ -333,14 +333,16 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
             if (id !== requestIds.current[requestKey]) return;
 
             if (entryMode === 'matched-set' && role !== 'single') {
+                const rawBrand = String(productData.brand || '').trim();
+                const rawModel = String(productData.model || '').trim();
                 const component: MatchedSetComponent = {
-                    brand: String(productData.brand || '').trim(),
-                    model: String(productData.model || '').trim(),
+                    brand: /^unknown$/i.test(rawBrand) ? '' : rawBrand,
+                    model: rawModel,
                     serial: String(productData.serial || '').trim() || undefined,
                 };
 
-                if (!component.brand || !component.model) {
-                    throw new Error(`Could not read the ${role} brand/model from that nameplate.`);
+                if (!component.model || /^unknown$/i.test(component.model)) {
+                    throw new Error(`Could not read the ${role} model number from that nameplate.`);
                 }
 
                 if (role === 'washer') setWasherNameplateImage(cloudUrl);
@@ -354,21 +356,25 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
                 const dryer = nextComponents.dryer;
                 const available = washer || dryer;
                 if (available) {
-                    setValue('brand', available.brand, { shouldDirty: true, shouldValidate: true });
+                    if (available.brand) {
+                        setValue('brand', available.brand, { shouldDirty: true, shouldValidate: true });
+                    }
                     setValue('model', available.model, { shouldDirty: true, shouldValidate: true });
                     setValue('serial', available.serial || '', { shouldDirty: true, shouldValidate: true });
                 }
 
                 if (washer && dryer) {
                     const brands = Array.from(new Set([washer.brand, dryer.brand].filter(Boolean)));
-                    const combinedBrand = brands.join(' / ');
+                    const combinedBrand = brands.join(' / ') || methods.getValues('brand') || '';
                     const combinedModel = `${washer.model} / ${dryer.model}`;
                     const combinedSerial = [washer.serial, dryer.serial].filter(Boolean).join(' / ');
 
-                    setValue('brand', combinedBrand, { shouldDirty: true, shouldValidate: true });
+                    if (combinedBrand) {
+                        setValue('brand', combinedBrand, { shouldDirty: true, shouldValidate: true });
+                    }
                     setValue('model', combinedModel, { shouldDirty: true, shouldValidate: true });
                     setValue('serial', combinedSerial, { shouldDirty: true, shouldValidate: true });
-                    setValue('title', `${combinedBrand} Washer & Dryer Set - ${combinedModel}`, { shouldDirty: true, shouldValidate: true });
+                    setValue('title', `${combinedBrand ? `${combinedBrand} ` : ''}Washer & Dryer Set - ${combinedModel}`, { shouldDirty: true, shouldValidate: true });
                 }
 
                 toast.success(`${role === 'washer' ? 'Washer' : 'Dryer'} nameplate scanned`);
@@ -376,11 +382,19 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
             }
 
             setNameplateImage(cloudUrl); // Switch to permanent cloud URL
-            setSingleScannedComponent({
-                brand: String(productData.brand || '').trim(),
-                model: String(productData.model || '').trim(),
-                serial: String(productData.serial || '').trim() || undefined,
-            });
+            {
+                const rawBrand = String(productData.brand || '').trim();
+                const rawModel = String(productData.model || '').trim();
+                if (rawModel && !/^unknown$/i.test(rawModel)) {
+                    setSingleScannedComponent({
+                        brand: /^unknown$/i.test(rawBrand) ? '' : rawBrand,
+                        model: rawModel,
+                        serial: String(productData.serial || '').trim() || undefined,
+                    });
+                } else {
+                    setSingleScannedComponent(null);
+                }
+            }
 
             // Prepare incoming data
             const incoming: Partial<InventoryFormValues> = {
@@ -443,21 +457,25 @@ const InventoryForm: React.FC<InventoryFormProps> = ({ initialData, items = [], 
         setValue('category', 'Washer & Dryer Sets', { shouldDirty: true, shouldValidate: true });
 
         if (available) {
-            setValue('brand', available.brand, { shouldDirty: true, shouldValidate: true });
+            if (available.brand) {
+                setValue('brand', available.brand, { shouldDirty: true, shouldValidate: true });
+            }
             setValue('model', available.model, { shouldDirty: true, shouldValidate: true });
             setValue('serial', available.serial || '', { shouldDirty: true, shouldValidate: true });
         }
 
         if (washer && dryer) {
             const brands = Array.from(new Set([washer.brand, dryer.brand].filter(Boolean)));
-            const combinedBrand = brands.join(' / ');
+            const combinedBrand = brands.join(' / ') || methods.getValues('brand') || '';
             const combinedModel = `${washer.model} / ${dryer.model}`;
             const combinedSerial = [washer.serial, dryer.serial].filter(Boolean).join(' / ');
 
-            setValue('brand', combinedBrand, { shouldDirty: true, shouldValidate: true });
+            if (combinedBrand) {
+                setValue('brand', combinedBrand, { shouldDirty: true, shouldValidate: true });
+            }
             setValue('model', combinedModel, { shouldDirty: true, shouldValidate: true });
             setValue('serial', combinedSerial, { shouldDirty: true, shouldValidate: true });
-            setValue('title', `${combinedBrand} Washer & Dryer Set - ${combinedModel}`, { shouldDirty: true, shouldValidate: true });
+            setValue('title', `${combinedBrand ? `${combinedBrand} ` : ''}Washer & Dryer Set - ${combinedModel}`, { shouldDirty: true, shouldValidate: true });
         }
 
         setNameplateImage(null);
